@@ -6,10 +6,10 @@ import sklearn.cluster
 
 import metrics
 
-print(metrics.metricFuncs)
+print(metrics.metricFunctions)
+
 
 kMeans = sklearn.cluster.KMeans(n_clusters=6)
-
 
 def aggregateData():
 	pass

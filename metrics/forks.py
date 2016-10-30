@@ -1,4 +1,3 @@
-metricFuncs.append(forks)
 
-def forks(repo):
+def forks(repo) -> 'metric':
 	return 0
