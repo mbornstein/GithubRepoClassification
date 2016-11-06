@@ -19,10 +19,8 @@ class CachedMetric(object):
 		return result
 
 def getFilename(repoURL):
-	fullname = getFullName(repoURL)
-	# Problem: getId is an API call
-	# save repo metrics to be able to load it with input URL
-	return '../data/repoMetrics/' + str(getId(fullname)) + '.json'	
+	filename = getFullName(repoURL).replace('/', '#') + '.json'
+	return '../data/repoMetrics/' + filename
 
 def cacheLookup(metricName, repoURL):
 	try:
@@ -45,11 +43,6 @@ def writeToCache(metricName, result, repoURL):
 	with open(filename, 'w') as data_file:
 			json.dump(data, data_file)
 
-
 def getFullName(repoURL):
 	tokens = repoURL.split('/')
 	return tokens[-2] + '/' + tokens[-1]
-
-def getId(fullname):
-	repo = githubClient.get_repo(fullname)
-	return repo.id
