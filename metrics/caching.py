@@ -2,6 +2,8 @@ import os
 import json
 from github import Github
 
+from metrics import metricCollection
+
 API_TOKEN = '0b8801a77eaea265f203f0a4b13d3d22739a6451'
 githubClient = Github(API_TOKEN)
 
@@ -9,6 +11,7 @@ class CachedMetric(object):
 
 	def __init__(self, f):
 		# TODO: add function to list here
+		metricCollection[f.__name__] = f
 		self.function = f
 
 	def __call__(self, *args, **kwargs):
