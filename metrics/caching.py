@@ -37,7 +37,7 @@ def writeToCache(metricName, result, repoURL):
 		with open(filename, 'r') as data_file:
 			data = json.load(data_file)
 	except FileNotFoundError:
-		# use empty directory
+		# use empty dictionary
 		pass
 	data[metricName] = result
 	with open(filename, 'w') as data_file:
