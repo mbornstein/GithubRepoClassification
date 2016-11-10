@@ -1,23 +1,21 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-
 import sklearn.cluster
 
-import metrics
-
-print(metrics.metricFunctions)
-
+from metrics import metricsbla
+print("main", metricsbla.metricCollection)
+repoURL = 'https://github.com/marfarma/handsoap'
+print('Repo size:', metricsbla.metricCollection['repo_size'](repoURL))
 
 kMeans = sklearn.cluster.KMeans(n_clusters=6)
 
-def aggregateData():
-	pass
+
+def aggregate_data():
+    return 0
+
 
 def train():
-	X = aggregateData()
-	kMeans.fit(X)
+    x = aggregate_data()
+    kMeans.fit(x)
 
-def predict(X):
-	return kMeans.predict(X)
 
+def predict(x):
+    return kMeans.predict(x)
