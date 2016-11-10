@@ -10,31 +10,33 @@ githubClient = Github(API_TOKEN)
 class CachedMetric(object):
 
     def __init__(self, f):
-        # TODO: add function to list here
         metricCollection[f.__name__] = f
         self.function = f
 
     def __call__(self, *args, **kwargs):
-        result = cacheLookup(self.function.__name__, args[0])
+        result = cache_lookup(self.function.__name__, args[0])
         if result == None:
             result = self.function(*args, **kwargs)
-            writeToCache(self.function.__name__, result, args[0])
+            write_to_cache(self.function.__name__, result, args[0])
         return result
 
-def getFilename(repoURL):
-    filename = getFullName(repoURL).replace('/', '#') + '.json'
-    return '../data/repoMetrics/' + filename
 
-def cacheLookup(metricName, repoURL):
+def get_filepath(repo_url):
+    filename = get_full_name(repo_url).replace('/', '#') + '.json'
+    return 'data/repoMetrics/' + filename
+
+
+def cache_lookup(metric_name, repoURL):
     try:
-        with open(getFilename(repoURL), 'r') as data_file:
+        with open(get_filepath(repoURL), 'r') as data_file:
             data = json.load(data_file)
-            return data[metricName]
+            return data[metric_name]
     except (KeyError, FileNotFoundError):
         return None
 
-def writeToCache(metricName, result, repoURL):
-    filename = getFilename(repoURL)
+
+def write_to_cache(metric_name, result, repo_url):
+    filename = get_filepath(repo_url)
     data = {}
     try:
         with open(filename, 'r') as data_file:
@@ -42,10 +44,11 @@ def writeToCache(metricName, result, repoURL):
     except FileNotFoundError:
         # use empty dictionary
         pass
-    data[metricName] = result
+    data[metric_name] = result
     with open(filename, 'w') as data_file:
             json.dump(data, data_file)
 
-def getFullName(repoURL):
-    tokens = repoURL.split('/')
+
+def get_full_name(repo_url):
+    tokens = repo_url.split('/')
     return tokens[-2] + '/' + tokens[-1]
