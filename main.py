@@ -1,9 +1,10 @@
 import sklearn.cluster
 
-from metrics import metricsbla
-print("main", metricsbla.metricCollection)
-repoURL = 'https://github.com/marfarma/handsoap'
-print('Repo size:', metricsbla.metricCollection['repo_size'](repoURL))
+from metrics.githubMetrics import GithubMetrics
+
+metrics = GithubMetrics('https://github.com/marfarma/handsoap')
+print('Repo size:', metrics.get('repo_size'))
+print('Watcher count:', metrics.get('watcher_count'))
 
 kMeans = sklearn.cluster.KMeans(n_clusters=6)
 
