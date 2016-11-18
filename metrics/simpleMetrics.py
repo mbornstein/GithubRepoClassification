@@ -1,15 +1,11 @@
-from metrics.caching import CachedMetric, get_full_name, githubClient
+from metrics.caching import CachedMetric
 
 
 @CachedMetric
-def repo_size(repo_url):
-    print('This is actually executed')
-    repo = githubClient.get_repo(get_full_name(repo_url))
+def repo_size(repo: 'repo_overview'):
     return repo.size
 
 
 @CachedMetric
-def watcher_count(repo_url):
-    print('This (watcher) is actually executed')
-    repo = githubClient.get_repo(get_full_name(repo_url))
+def watcher_count(repo: 'repo_overview'):
     return repo.watchers

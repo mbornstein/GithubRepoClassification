@@ -1,10 +1,6 @@
 import json
-from github import Github
 
 from metrics.githubMetrics import metricCollection
-
-API_TOKEN = '0b8801a77eaea265f203f0a4b13d3d22739a6451'
-githubClient = Github(API_TOKEN)
 
 
 class CachedMetric(object):
@@ -13,30 +9,40 @@ class CachedMetric(object):
         metricCollection[f.__name__] = self.__call__
         self.function = f
 
-    def __call__(self, *args, **kwargs):
-        result = cache_lookup(self.function.__name__, args[0])
+    def __call__(self, github_metrics):
+        result = cache_lookup(self.function.__name__, github_metrics)
         if result is None:
-            result = self.function(*args, **kwargs)
-            write_to_cache(self.function.__name__, result, args[0])
+            kwargs = self.generate_arguments(github_metrics)
+            result = self.function(**kwargs)
+            write_to_cache(self.function.__name__, result, github_metrics)
         return result
 
+    def generate_arguments(self, github_metrics):
+        keyword_arguments = {}
+        for argument, annotation in self.function.__annotations__.items():
+            if annotation == 'repo_overview':
+                keyword_arguments[argument] = github_metrics.get_repo_overview()
+            else:
+                raise NameError('Unknow annotation {:s} in function {:s}'.format(annotation, self.function.__name__))
+        return keyword_arguments
 
-def get_file_path(repo_url):
-    filename = get_full_name(repo_url).replace('/', '#') + '.json'
+
+def get_file_path(github_metrics):
+    filename = github_metrics.get_full_name().replace('/', '#') + '.json'
     return 'data/repoMetrics/' + filename
 
 
-def cache_lookup(metric_name, repo_url):
+def cache_lookup(metric_name, github_metrics):
     try:
-        with open(get_file_path(repo_url), 'r') as data_file:
+        with open(get_file_path(github_metrics), 'r') as data_file:
             data = json.load(data_file)
             return data[metric_name]
     except (KeyError, FileNotFoundError):
         return None
 
 
-def write_to_cache(metric_name, result, repo_url):
-    filename = get_file_path(repo_url)
+def write_to_cache(metric_name, result, github_metrics):
+    filename = get_file_path(github_metrics)
     data = {}
     try:
         with open(filename, 'r') as data_file:
@@ -47,8 +53,3 @@ def write_to_cache(metric_name, result, repo_url):
     data[metric_name] = result
     with open(filename, 'w') as data_file:
             json.dump(data, data_file)
-
-
-def get_full_name(repo_url):
-    tokens = repo_url.split('/')
-    return tokens[-2] + '/' + tokens[-1]
