@@ -22,13 +22,15 @@ class CachedMetric(object):
         for argument, annotation in self.function.__annotations__.items():
             if annotation == 'repo_overview':
                 keyword_arguments[argument] = github_metrics.get_repo_overview()
+            elif annotation == 'cloned_repo_path':
+                keyword_arguments[argument] = github_metrics.get_cloned_repo_path()
             else:
-                raise NameError('Unknow annotation {:s} in function {:s}'.format(annotation, self.function.__name__))
+                raise NameError('Unknown annotation {:s} in function {:s}'.format(annotation, self.function.__name__))
         return keyword_arguments
 
 
 def get_file_path(github_metrics):
-    filename = github_metrics.get_full_name().replace('/', '#') + '.json'
+    filename = github_metrics.get_escaped_full_name() + '.json'
     return 'data/repoMetrics/' + filename
 
 

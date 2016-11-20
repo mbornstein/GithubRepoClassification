@@ -4,6 +4,7 @@
 .DS_Store
 
 data/repoMetrics/*.json
+data/repos/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

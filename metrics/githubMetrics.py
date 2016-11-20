@@ -1,3 +1,6 @@
+import os
+import subprocess
+
 from github import Github
 
 API_TOKEN = '0b8801a77eaea265f203f0a4b13d3d22739a6451'
@@ -11,7 +14,6 @@ class GithubMetrics:
         self.repo_url = repo_url
         self.full_name = None
         self.repo_overview = None
-        # self.cloned_repo_path = None
 
     def get(self, metric):
         return metricCollection[metric](self)
@@ -27,3 +29,15 @@ class GithubMetrics:
             tokens = self.repo_url.split('/')
             self.full_name = tokens[-2] + '/' + tokens[-1]
         return self.full_name
+
+    def get_escaped_full_name(self):
+        return self.get_full_name().replace('/', '#')
+
+    def get_cloned_repo_path(self):
+        path = self._get_cloned_repo_path_name()
+        if not os.path.isdir(path):
+            subprocess.run(['git', 'clone', self.repo_url, path])
+        return path
+
+    def _get_cloned_repo_path_name(self):
+        return 'data/repos/' + self.get_escaped_full_name()
