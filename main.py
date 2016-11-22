@@ -2,6 +2,7 @@ import sklearn.cluster
 import pandas as pd
 
 from metrics.githubMetrics import GithubMetrics, metricCollection
+from data.given_repos import given_repos
 
 
 kMeans = sklearn.cluster.KMeans(n_clusters=6)
@@ -13,7 +14,8 @@ def get_repo_links(amount=100):
 
 
 def aggregate_data(data_size=100):
-    repo_links = get_repo_links(data_size)
+    given_repo_links, _ = given_repos
+    repo_links = get_repo_links(data_size) + given_repo_links
     metric_list = list(metricCollection.keys())
 
     data = []
