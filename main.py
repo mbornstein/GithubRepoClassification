@@ -1,4 +1,5 @@
 import sklearn.cluster
+import numpy as np
 import pandas as pd
 
 from metrics.githubMetrics import GithubMetrics, metricCollection
@@ -26,12 +27,8 @@ def aggregate_data(data_size=100):
     return pd.DataFrame(data=data, columns=['repo'] + metric_list)
 
 
-def train():
-    metrics = list(metricCollection.keys())
-    data = aggregate_data(data_size=100)
-    print(data)
+def train(data):
     X = data[metrics]
-
     kMeans.fit(X)
     print('summed error:', kMeans.score(X))
 
@@ -45,4 +42,19 @@ def predict(x):
 # print('Watcher count:', metrics.get('watcher_count'))
 
 if __name__ == '__main__':
-    train()
+    metrics = list(metricCollection.keys())
+    data = aggregate_data(data_size=100)
+    print(data)
+
+    train(data)
+    Y_ = predict(data[metrics])
+    print(Y_)
+
+    _, known_Y = given_repos
+    known_Y = np.array(known_Y)
+    predicted_Y = Y_[:30]
+
+    for cluster in np.unique(predicted_Y):
+        positions_of_occurrence = np.argwhere(predicted_Y == cluster).transpose()[0]
+        possible_classes = known_Y[positions_of_occurrence]
+        print('cluster', cluster, 'has possible classes:', possible_classes)
