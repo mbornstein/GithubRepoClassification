@@ -21,7 +21,7 @@ def aggregate_data(data_size=100):
     metrics_data = []
     for link in repo_links:
         github_metrics = GithubMetrics(link)
-        data.append([link] + [github_metrics.get(m) for m in metrics])
+        metrics_data.append([link] + [github_metrics.get(m) for m in metrics])
 
     return pd.DataFrame(data=metrics_data, columns=['repo'] + metrics)
 
