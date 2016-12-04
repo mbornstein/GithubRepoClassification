@@ -6,6 +6,7 @@ from metrics.githubMetrics import GithubMetrics, metricCollection
 from data.given_repos import given_repos
 
 
+metrics = list(metricCollection.keys())
 kMeans = sklearn.cluster.KMeans(n_clusters=7)
 
 
@@ -17,14 +18,12 @@ def get_repo_links(amount=100):
 def aggregate_data(data_size=100):
     given_repo_links, _ = given_repos
     repo_links = get_repo_links(data_size) + given_repo_links
-    metric_list = list(metricCollection.keys())
-
-    data = []
+    metrics_data = []
     for link in repo_links:
         github_metrics = GithubMetrics(link)
-        data.append([link] + [github_metrics.get(m) for m in metric_list])
+        data.append([link] + [github_metrics.get(m) for m in metrics])
 
-    return pd.DataFrame(data=data, columns=['repo'] + metric_list)
+    return pd.DataFrame(data=metrics_data, columns=['repo'] + metrics)
 
 
 def train(data):
@@ -42,7 +41,6 @@ def predict(x):
 # print('Watcher count:', metrics.get('watcher_count'))
 
 if __name__ == '__main__':
-    metrics = list(metricCollection.keys())
     data = aggregate_data(data_size=100)
     print(data)
 
