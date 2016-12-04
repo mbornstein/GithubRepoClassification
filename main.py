@@ -6,7 +6,7 @@ from metrics.githubMetrics import GithubMetrics, metricCollection
 from data.given_repos import given_repos
 
 
-kMeans = sklearn.cluster.KMeans(n_clusters=6)
+kMeans = sklearn.cluster.KMeans(n_clusters=7)
 
 
 def get_repo_links(amount=100):
