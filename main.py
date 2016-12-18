@@ -7,7 +7,7 @@ from data.given_repos import given_repos
 
 
 metrics = list(metricCollection.keys())
-kMeans = sklearn.cluster.KMeans(n_clusters=7)
+kMeans = sklearn.cluster.KMeans(n_clusters=6)
 
 
 def get_repo_links(amount=100):
@@ -26,6 +26,18 @@ def aggregate_data(data_size=100):
     return pd.DataFrame(data=metrics_data, columns=['repo'] + metrics)
 
 
+def normalize_data(data):
+    metric_list = data.columns
+    norm_data = pd.DataFrame({
+        'avg_entropy': data['avg_entropy']
+    })
+    for metric in metric_list[1:]:
+        norm_data[metric] = np.log(data[metric] + 1)
+        norm_data[metric] = (norm_data[metric] - norm_data[metric].min()) / \
+                            (norm_data[metric].max() - norm_data[metric].min())
+    return norm_data
+
+
 def train(data):
     X = data[metrics]
     kMeans.fit(X)
@@ -42,6 +54,8 @@ def predict(x):
 
 if __name__ == '__main__':
     data = aggregate_data(data_size=100)
+    print(data)
+    data = normalize_data(data)
     print(data)
 
     train(data)
