@@ -2,8 +2,8 @@ import os
 import subprocess
 
 from github import Github
+from config import API_TOKEN
 
-API_TOKEN = '0b8801a77eaea265f203f0a4b13d3d22739a6451'
 githubClient = Github(API_TOKEN)
 metricCollection = {}
 
