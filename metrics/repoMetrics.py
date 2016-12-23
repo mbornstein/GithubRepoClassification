@@ -66,5 +66,8 @@ def avg_entropy(repo_path: 'cloned_repo_path'):
             except FileNotFoundError:
                 # symbolic links to non existing files throw errors
                 pass
+            except OSError:
+                # ignore Too many levels of symbolic links error
+                pass
 
     return sum_entropy / count
