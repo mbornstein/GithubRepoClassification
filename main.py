@@ -5,7 +5,7 @@ import pandas as pd
 from metrics.githubMetrics import GithubMetrics, metricCollection
 from importer.testDataImporter import TestDataImporter
 
-CLUSTERS = 6
+CLUSTERS = 15
 
 metrics = list(metricCollection.keys())
 kMeans = sklearn.cluster.KMeans(n_clusters=CLUSTERS)
