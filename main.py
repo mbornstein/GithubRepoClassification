@@ -5,7 +5,7 @@ import pandas as pd
 from metrics.githubMetrics import GithubMetrics, metricCollection
 from importer.testDataImporter import TestDataImporter
 
-CLUSTERS = 15
+CLUSTERS = 30
 
 metrics = list(metricCollection.keys())
 kMeans = sklearn.cluster.KMeans(n_clusters=CLUSTERS)
@@ -40,24 +40,54 @@ def normalize_data(data):
 def train(data):
     X = data[metrics]
     kMeans.fit(X)
-    print('summed error:', kMeans.score(X))
+    # print('summed error:', kMeans.score(X))
 
 
 def predict(x):
     return kMeans.predict(x)
 
 
+def assign_cluster_classes(classification, predictions, cluster_count):
+    cluster_class_distribution = [dict() for i in range(cluster_count)]
+    for index in range(len(predictions)):
+        cluster = predictions[index]
+        category = classification[index]
+        dictionary = cluster_class_distribution[cluster]
+        dictionary[category] = dictionary.get(category, 0) + 1
+    cluster_classes = []
+    for dictionary in cluster_class_distribution:
+        maximum = 0
+        category = None
+        for key, value in dictionary.items():
+            if value > maximum:
+                maximum = value
+                category = key
+        cluster_classes.append(category)
+    return cluster_classes
+
+
 if __name__ == '__main__':
     importer = TestDataImporter('data/testset.csv')
     data = aggregate_data(importer.repos)
-    #print(data)
+    # print(data)
     data = normalize_data(data)
-    print(data)
+    # print(data)
 
     train(data)
     prediction = predict(data[metrics])
 
+    cluster_classes = assign_cluster_classes(importer.classification, prediction, CLUSTERS)
+
+    if len(set(cluster_classes)) < len(set(importer.classification)):
+        print("Warning: for some categories are no clusters available")
+
     for cluster in range(CLUSTERS):
-        positions_of_occurrence = np.argwhere(prediction == cluster).transpose()[0]
-        possible_classes = [importer.classification[position] for position in positions_of_occurrence]
-        print('Cluster', cluster, 'has possible classes:', possible_classes)
+        print('Cluster', cluster, 'is assigned to:', cluster_classes[cluster])
+
+    correct = 0
+    for i in range(len(prediction)):
+        if importer.classification[i] == cluster_classes[prediction[i]]:
+            correct += 1
+    print('Precision:', correct / len(prediction))
+
+
