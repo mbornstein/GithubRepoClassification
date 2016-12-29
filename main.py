@@ -5,7 +5,7 @@ import pandas as pd
 from metrics.githubMetrics import GithubMetrics, metricCollection
 from importer.testDataImporter import TestDataImporter
 
-CLUSTERS = 30
+CLUSTERS = 15
 
 metrics = list(metricCollection.keys())
 kMeans = sklearn.cluster.KMeans(n_clusters=CLUSTERS)
@@ -68,25 +68,29 @@ def assign_cluster_classes(classification, predictions, cluster_count):
 
 if __name__ == '__main__':
     importer = TestDataImporter('data/testset.csv')
-    data = aggregate_data(importer.repos)
-    # print(data)
-    data = normalize_data(data)
-    # print(data)
 
+    # Train
+    data = aggregate_data(importer.trainset.repos)
+    data = normalize_data(data)
     train(data)
     prediction = predict(data[metrics])
 
-    cluster_classes = assign_cluster_classes(importer.classification, prediction, CLUSTERS)
+    cluster_classes = assign_cluster_classes(importer.trainset.classification, prediction, CLUSTERS)
 
-    if len(set(cluster_classes)) < len(set(importer.classification)):
+    if len(set(cluster_classes)) < len(set(importer.trainset.classification)):
         print("Warning: for some categories are no clusters available")
 
     for cluster in range(CLUSTERS):
         print('Cluster', cluster, 'is assigned to:', cluster_classes[cluster])
 
+    # Test
+    data = aggregate_data(importer.testset.repos)
+    data = normalize_data(data)
+    prediction = predict(data[metrics])
+
     correct = 0
     for i in range(len(prediction)):
-        if importer.classification[i] == cluster_classes[prediction[i]]:
+        if importer.testset.classification[i] == cluster_classes[prediction[i]]:
             correct += 1
     print('Precision:', correct / len(prediction))
 
