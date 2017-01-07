@@ -67,3 +67,14 @@ Small size: DEV, rest
 ## Problems with kmeans
 * All metrics are equally important
 * Cannot learn dependencies between metrics
+
+## Null accuracy
+Around 75% if we only guess DEV.
+Idea: Classify DEV vs non-DEV. And a second stage to classify the rest if it is no DEV.
+
+## TODO
+* Two stage classification (DEV/not DEV)
+* moar metrics
+* visualize metric distribution (each metric/ color coding)
+* visualize boxplot per category per metric
+* Tips with to do if high null accuracy

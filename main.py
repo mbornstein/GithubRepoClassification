@@ -11,11 +11,6 @@ metrics = list(metricCollection.keys())
 kMeans = sklearn.cluster.KMeans(n_clusters=CLUSTERS)
 
 
-def get_repo_links(amount=100):
-    repo_links = open('data/repoURLs.txt', 'r').readlines()[:amount]
-    return [link.strip() for link in repo_links]
-
-
 def aggregate_data(repo_links):
     metrics_data = []
     for link in repo_links:
