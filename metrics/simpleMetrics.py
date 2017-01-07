@@ -19,7 +19,7 @@ def forks_count(repo: 'repo_overview'):
 
 
 @CachedMetric
-def open_issues(repo: 'repo_overview'):
+def open_issue_count(repo: 'repo_overview'):
     return repo.open_issues
 
 
