@@ -78,3 +78,5 @@ Idea: Classify DEV vs non-DEV. And a second stage to classify the rest if it is 
 * visualize metric distribution (each metric/ color coding)
 * visualize boxplot per category per metric
 * Tips with to do if high null accuracy
+* learning curve by train set size
+* predict category from readme

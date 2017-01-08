@@ -20,7 +20,7 @@ def predict(log_reg, x):
 
 if __name__ == '__main__':
     importer = TestDataImporter('data/testset.csv')
-    log_reg = LogisticRegression(C=1.0, max_iter=10, multi_class='ovr', n_jobs=3)
+    log_reg = LogisticRegression(C=1.0, max_iter=100, solver='lbfgs', multi_class='multinomial', n_jobs=2)
 
     # Train
     data = aggregate_data(importer.trainset.repos)
@@ -37,10 +37,11 @@ if __name__ == '__main__':
     for i in range(len(prediction)):
         if importer.testset.classification[i] == prediction[i]:
             correct += 1
-    print('Precision:', correct / len(prediction))
+    print('Accuracy:', correct / len(prediction))
+    print('Null Accuracy:', len([x for x in importer.testset.classification if x == 'DEV']) / len(importer.testset.classification))
 
-    print(log_reg.coef_)
-    print(log_reg.predict_proba(data[metrics][:5]))
+    #print(log_reg.coef_)
+    #print(log_reg.predict_proba(data[metrics][:5]))
 
-    for cat in np.unique(importer.testset.classification):
-        print(cat, importer.testset.classification.count(cat))
+    #for cat in np.unique(importer.testset.classification):
+    #    print(cat, importer.testset.classification.count(cat))
