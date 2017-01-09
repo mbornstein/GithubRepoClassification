@@ -15,17 +15,16 @@ def train(log_reg, data, expected_values):
 def predict(clf, x):
     return clf.predict(x)
 
-# Readme.org
-# README.md
-# readme.txt
-# README
-# README.mkd
+
 def getReadmeContent(repo_url):
     path = GithubMetrics(repo_url).get_cloned_repo_path()
-    try:
-        content = open(path + '/README.md', 'r').read()
-    except FileNotFoundError:
-        content = ''
+    content = ''
+    for filename in ['REAMDME.md', 'Readme.org', 'readme.txt', 'README', 'README.mkd']:
+        try:
+            content = open(path + '/' + filename, 'r').read()
+            return content
+        except FileNotFoundError:
+            continue
     return content
 
 if __name__ == '__main__':
