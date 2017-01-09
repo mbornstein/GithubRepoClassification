@@ -15,7 +15,11 @@ def train(log_reg, data, expected_values):
 def predict(clf, x):
     return clf.predict(x)
 
-
+# Readme.org
+# README.md
+# readme.txt
+# README
+# README.mkd
 def getReadmeContent(repo_url):
     path = GithubMetrics(repo_url).get_cloned_repo_path()
     try:
