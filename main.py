@@ -5,6 +5,13 @@ import pandas as pd
 from metrics.githubMetrics import GithubMetrics, metricCollection
 from importer.testDataImporter import TestDataImporter
 
+
+'''
+    Accuracy check for non DEV kMeans
+    8 cluster = 0.4
+    9,11,13 cluster = 0.34285
+    17 cluster = 0.333333
+'''
 CLUSTERS = 15
 
 metrics = list(metricCollection.keys())
@@ -65,27 +72,41 @@ if __name__ == '__main__':
     importer = TestDataImporter('data/testset.csv')
 
     # Train
-    data = aggregate_data(importer.trainset.repos)
-    data = normalize_data(data)
-    train(data)
-    prediction = predict(data[metrics])
+    data_train = aggregate_data(importer.trainset.repos)
+    y_data_train = np.array(importer.trainset.classification)
 
-    cluster_classes = assign_cluster_classes(importer.trainset.classification, prediction, CLUSTERS)
+    # filter DEV
+    dev_filter_train = y_data_train != 'DEV'
+    data_train = data_train[dev_filter_train]
+    y_data_train = y_data_train[dev_filter_train]
 
-    if len(set(cluster_classes)) < len(set(importer.trainset.classification)):
+    data_train = normalize_data(data_train)
+    train(data_train)
+    prediction = predict(data_train[metrics])
+
+    cluster_classes = assign_cluster_classes(y_data_train, prediction, CLUSTERS)
+
+    if len(set(cluster_classes)) < len(np.unique(y_data_train)):
         print("Warning: for some categories are no clusters available")
 
     for cluster in range(CLUSTERS):
         print('Cluster', cluster, 'is assigned to:', cluster_classes[cluster])
 
     # Test
-    data = aggregate_data(importer.testset.repos)
-    data = normalize_data(data)
-    prediction = predict(data[metrics])
+    data_test = aggregate_data(importer.testset.repos)
+    y_data_test = np.array(importer.testset.classification)
+
+    # filter dev
+    dev_filter_test = y_data_test != 'DEV'
+    data_test = data_test[dev_filter_test]
+    y_data_test = y_data_test[dev_filter_test]
+
+    data_test = normalize_data(data_test)
+    prediction = predict(data_test[metrics])
 
     correct = 0
     for i in range(len(prediction)):
-        if importer.testset.classification[i] == cluster_classes[prediction[i]]:
+        if y_data_test[i] == cluster_classes[prediction[i]]:
             correct += 1
     print('Precision:', correct / len(prediction))
 
