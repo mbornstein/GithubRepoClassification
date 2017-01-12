@@ -71,3 +71,19 @@ def avg_entropy(repo_path: 'cloned_repo_path'):
                 pass
 
     return sum_entropy / count
+
+@CachedMetric
+def is_io_page(repo: 'repo_overview'):
+    if repo.name.endswith('github.io'):
+        return 1
+    else:
+        return 0
+
+@CachedMetric
+def html_count(repo_path: 'cloned_repo_path'):
+    count = 0
+    for _, _, files in os.walk(repo_path):
+        for file in files:
+            if file.endswith('.html'):
+                count += 1
+    return count
