@@ -109,5 +109,6 @@ if __name__ == '__main__':
         if y_data_test[i] == cluster_classes[prediction[i]]:
             correct += 1
     print('Precision:', correct / len(prediction))
+    print('Null accuracy', max([len(y_data_test[y_data_test == x]) for x in np.unique(y_data_test)]) / len(y_data_test))
 
 
