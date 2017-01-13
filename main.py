@@ -68,27 +68,6 @@ def assign_cluster_classes(classification, predictions, cluster_count):
     return cluster_classes
 
 
-class TwoStepClassifier:
-
-    def __init__(self, model1, model2):
-        self.model1 = model1
-        self.model2 = model2
-
-    def fit(self, data, y):
-        dev_or_empty = np.array(['', 'DEV'])[(y == 'DEV') * 1]
-        self.model1.fit(data, dev_or_empty)
-        self.model2.fit(data[y != 'DEV'], y[y != 'DEV'])
-
-    def predict(self, data):
-        y_pred1 = self.model1.predict(data)
-        y_pred2 = self.model2.predict(data)
-        y_pred1[y_pred1 != 'DEV'] = y_pred2[y_pred1 != 'DEV']
-        return y_pred1
-
-    def score(self, data, y):
-        return np.mean(self.predict(data) == y)
-
-
 if __name__ == '__main__':
     importer = TestDataImporter('data/testset.csv')
 
