@@ -6,6 +6,8 @@ from TwoStepClassifier import TwoStepClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
 
 from metrics.githubMetrics import GithubMetrics, metricCollection
 from importer.testDataImporter import TestDataImporter
@@ -52,8 +54,12 @@ def main():
     algorithms = [
         DecisionTreeClassifier(random_state=1337),
         LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr'),
-        TwoStepClassifier(LogisticRegression(C=1.0, max_iter=100, n_jobs=2), RandomForestClassifier(n_estimators=100, random_state=1337),
-        )
+        LogisticRegression(C=1.0, max_iter=100, n_jobs=2),
+        TwoStepClassifier(LogisticRegression(C=1.0, max_iter=100, n_jobs=2), RandomForestClassifier(n_estimators=100, random_state=1337)),
+        SVC(C=20.0, random_state=1337),
+        RandomForestClassifier(n_estimators=100, random_state=1337),
+        MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive'),
+        MLPClassifier(max_iter=20000, hidden_layer_sizes=(50,20), random_state=1337, shuffle=False, learning_rate='adaptive'),
     ]
 
     importer = TestDataImporter('data/testset.csv')
@@ -68,9 +74,11 @@ def main():
     data_test = normalize_data(data_test)
     y_data_test = np.array(importer.testset.classification)
 
+    print('Null accuracy', max([len(y_data_test[y_data_test == x]) for x in np.unique(y_data_test)]) / len(y_data_test))
+    print('Accuracies:')
     for algo in algorithms:
         accuracy = get_accuracy(algo, data_train, y_data_train, data_test, y_data_test)
-        print(algo, '\nAccuracy:', accuracy)
+        print(type(algo).__name__ + ':\t', accuracy)
 
 
 if __name__ == '__main__':
