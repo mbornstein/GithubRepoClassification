@@ -8,7 +8,7 @@ class TwoStepClassifier:
         self.model2 = model2
 
     def fit(self, data, y):
-        dev_or_empty = np.array(['', 'DEV'])[(y == 'DEV') * 1]
+        dev_or_empty = np.array(['      ', 'DEV'])[(y == 'DEV') * 1]
         self.model1.fit(data, dev_or_empty)
         print(self.model1.score(data, y))
         self.model2.fit(data[y != 'DEV'], y[y != 'DEV'])
