@@ -49,19 +49,15 @@ def get_accuracy(algo, train, y_train, test, y_test):
     algo.fit(train, y_train)
     return algo.score(test, y_test)
 
+def get_accuracies(algos, train, y_train, test, y_test):
+    print('Null accuracy', max([len(y_test[y_test == x]) for x in np.unique(y_test)]) / len(y_test))
+    print('Accuracies:')
+    for algo in algos:
+        accuracy = get_accuracy(algo, train, y_train, test, y_test)
+        print(type(algo).__name__ + ':\t', accuracy)
 
-def main():
-    algorithms = [
-        DecisionTreeClassifier(random_state=1337),
-        LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr'),
-        LogisticRegression(C=1.0, max_iter=100, n_jobs=2),
-        TwoStepClassifier(LogisticRegression(C=1.0, max_iter=100, n_jobs=2), RandomForestClassifier(n_estimators=100, random_state=1337)),
-        SVC(C=20.0, random_state=1337),
-        RandomForestClassifier(n_estimators=100, random_state=1337),
-        MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive'),
-        MLPClassifier(max_iter=20000, hidden_layer_sizes=(50,20), random_state=1337, shuffle=False, learning_rate='adaptive'),
-    ]
 
+def learn_full(algos):
     importer = TestDataImporter('data/testset.csv')
 
     # Train Data
@@ -74,11 +70,65 @@ def main():
     data_test = normalize_data(data_test)
     y_data_test = np.array(importer.testset.classification)
 
-    print('Null accuracy', max([len(y_data_test[y_data_test == x]) for x in np.unique(y_data_test)]) / len(y_data_test))
-    print('Accuracies:')
-    for algo in algorithms:
-        accuracy = get_accuracy(algo, data_train, y_data_train, data_test, y_data_test)
-        print(type(algo).__name__ + ':\t', accuracy)
+    get_accuracies(algos, data_train, y_data_train, data_test, y_data_test)
+
+
+def learn_step_one(algos):
+    importer = TestDataImporter('data/testset.csv')
+
+    # Train Data
+    data_train = get_data(importer.trainset.repos)
+    data_train = normalize_data(data_train)
+    y_data_train = np.array(importer.trainset.classification)
+    y_data_train = np.array(['NO-DEV', 'DEV'])[(y_data_train == 'DEV') * 1]
+
+    # Test Data
+    data_test = get_data(importer.testset.repos)
+    data_test = normalize_data(data_test)
+    y_data_test = np.array(importer.testset.classification)
+    y_data_test = np.array(['NO-DEV', 'DEV'])[(y_data_test == 'DEV') * 1]
+
+    get_accuracies(algos, data_train, y_data_train, data_test, y_data_test)
+
+
+def learn_step_two(algos):
+    importer = TestDataImporter('data/testset.csv')
+
+    # Train Data
+    data_train = get_data(importer.trainset.repos)
+    data_train = normalize_data(data_train)
+    y_data_train = np.array(importer.trainset.classification)
+    data_train = data_train[y_data_train != 'DEV']
+    y_data_train = y_data_train[y_data_train != 'DEV']
+
+    # Test Data
+    data_test = get_data(importer.testset.repos)
+    data_test = normalize_data(data_test)
+    y_data_test = np.array(importer.testset.classification)
+    data_test = data_test[y_data_test != 'DEV']
+    y_data_test = y_data_test[y_data_test != 'DEV']
+
+    get_accuracies(algos, data_train, y_data_train, data_test, y_data_test)
+
+
+def main():
+    algorithms = [
+        DecisionTreeClassifier(random_state=1337),
+        LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr'),
+        LogisticRegression(C=1.0, max_iter=100, n_jobs=2),
+        #TwoStepClassifier(LogisticRegression(C=1.0, max_iter=100, n_jobs=2), RandomForestClassifier(n_estimators=100, random_state=1337)),
+        SVC(C=20.0, random_state=1337),
+        RandomForestClassifier(n_estimators=100, random_state=1337),
+        MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive'),
+        MLPClassifier(max_iter=20000, hidden_layer_sizes=(50,20), random_state=1337, shuffle=False, learning_rate='adaptive'),
+    ]
+
+    print('Full learning')
+    learn_full(algorithms)
+    print('\nStep 1 learning')
+    learn_step_one(algorithms)
+    print('\nStep 2 learning')
+    learn_step_two(algorithms)
 
 
 if __name__ == '__main__':
