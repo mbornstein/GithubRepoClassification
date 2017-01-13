@@ -1,21 +1,16 @@
-import sklearn.cluster
 import numpy as np
 import pandas as pd
+
+# Learning Algorithms
+from TwoStepClassifier import TwoStepClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 
 from metrics.githubMetrics import GithubMetrics, metricCollection
 from importer.testDataImporter import TestDataImporter
 
-
-'''
-    Accuracy check for non DEV kMeans
-    8 cluster = 0.4
-    9,11,13 cluster = 0.34285
-    17 cluster = 0.333333
-'''
-CLUSTERS = 15
-
 metrics = list(metricCollection.keys())
-kMeans = sklearn.cluster.KMeans(n_clusters=CLUSTERS)
 
 
 def aggregate_data(repo_links):
@@ -25,6 +20,15 @@ def aggregate_data(repo_links):
         metrics_data.append([link] + [github_metrics.get(m) for m in metrics])
 
     return pd.DataFrame(data=metrics_data, columns=['repo'] + metrics)
+
+
+def get_data(repo_links):
+    metrics_data = []
+    for link in repo_links:
+        github_metrics = GithubMetrics(link)
+        metrics_data.append([github_metrics.get(m) for m in metrics])
+
+    return pd.DataFrame(data=metrics_data, columns=metrics)
 
 
 def normalize_data(data):
@@ -39,76 +43,35 @@ def normalize_data(data):
     return norm_data
 
 
-def train(data):
-    X = data[metrics]
-    kMeans.fit(X)
-    # print('summed error:', kMeans.score(X))
+def get_accuracy(algo, train, y_train, test, y_test):
+    algo.fit(train, y_train)
+    return algo.score(test, y_test)
 
 
-def predict(x):
-    return kMeans.predict(x)
+def main():
+    algorithms = [
+        DecisionTreeClassifier(random_state=1337),
+        LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr'),
+        TwoStepClassifier(LogisticRegression(C=1.0, max_iter=100, n_jobs=2), RandomForestClassifier(n_estimators=100, random_state=1337),
+        )
+    ]
 
+    importer = TestDataImporter('data/testset.csv')
 
-def assign_cluster_classes(classification, predictions, cluster_count):
-    cluster_class_distribution = [dict() for i in range(cluster_count)]
-    for index in range(len(predictions)):
-        cluster = predictions[index]
-        category = classification[index]
-        dictionary = cluster_class_distribution[cluster]
-        dictionary[category] = dictionary.get(category, 0) + 1
-    cluster_classes = []
-    for dictionary in cluster_class_distribution:
-        maximum = 0
-        category = None
-        for key, value in dictionary.items():
-            if value > maximum:
-                maximum = value
-                category = key
-        cluster_classes.append(category)
-    return cluster_classes
+    # Train Data
+    data_train = get_data(importer.trainset.repos)
+    data_train = normalize_data(data_train)
+    y_data_train = np.array(importer.trainset.classification)
+
+    # Test Data
+    data_test = get_data(importer.testset.repos)
+    data_test = normalize_data(data_test)
+    y_data_test = np.array(importer.testset.classification)
+
+    for algo in algorithms:
+        accuracy = get_accuracy(algo, data_train, y_data_train, data_test, y_data_test)
+        print(algo, '\nAccuracy:', accuracy)
 
 
 if __name__ == '__main__':
-    importer = TestDataImporter('data/testset.csv')
-
-    # Train
-    data_train = aggregate_data(importer.trainset.repos)
-    y_data_train = np.array(importer.trainset.classification)
-
-    # filter DEV
-    dev_filter_train = y_data_train != 'DEV'
-    data_train = data_train[dev_filter_train]
-    y_data_train = y_data_train[dev_filter_train]
-
-    data_train = normalize_data(data_train)
-    train(data_train)
-    prediction = predict(data_train[metrics])
-
-    cluster_classes = assign_cluster_classes(y_data_train, prediction, CLUSTERS)
-
-    if len(set(cluster_classes)) < len(np.unique(y_data_train)):
-        print("Warning: for some categories are no clusters available")
-
-    for cluster in range(CLUSTERS):
-        print('Cluster', cluster, 'is assigned to:', cluster_classes[cluster])
-
-    # Test
-    data_test = aggregate_data(importer.testset.repos)
-    y_data_test = np.array(importer.testset.classification)
-
-    # filter dev
-    dev_filter_test = y_data_test != 'DEV'
-    data_test = data_test[dev_filter_test]
-    y_data_test = y_data_test[dev_filter_test]
-
-    data_test = normalize_data(data_test)
-    prediction = predict(data_test[metrics])
-
-    correct = 0
-    for i in range(len(prediction)):
-        if y_data_test[i] == cluster_classes[prediction[i]]:
-            correct += 1
-    print('Precision:', correct / len(prediction))
-    print('Null accuracy', max([len(y_data_test[y_data_test == x]) for x in np.unique(y_data_test)]) / len(y_data_test))
-
-
+    main()
