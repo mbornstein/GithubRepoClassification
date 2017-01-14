@@ -14,7 +14,7 @@ class TwoStepClassifier:
 
     def predict(self, data):
         y_pred1 = self.model1.predict(data)
-        # print(y_pred1)
+        #print(y_pred1)
         y_pred2 = self.model2.predict(data[y_pred1 != 'DEV'])
         # print(y_pred2)
         y_pred1[y_pred1 != 'DEV'] = y_pred2
