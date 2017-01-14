@@ -14,7 +14,7 @@ class CustomKMeans:
 
     def predict(self, data):
         predicted_cluster = self.model.predict(data)
-        return [self.cluster_classes[x] for x in predicted_cluster]
+        return np.array([self.cluster_classes[x] for x in predicted_cluster])
 
     def score(self, data, y):
         return np.mean(self.predict(data) == y)
