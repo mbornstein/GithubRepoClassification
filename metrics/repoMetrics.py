@@ -3,6 +3,9 @@ import entropy
 
 from metrics.caching import CachedMetric
 
+import subprocess
+from .edu_mails import is_edu_mail
+
 
 @CachedMetric
 def file_count(repo_path: 'cloned_repo_path'):
@@ -87,3 +90,28 @@ def html_count(repo_path: 'cloned_repo_path'):
             if file.endswith('.html'):
                 count += 1
     return count
+
+@CachedMetric
+def edu_mail_ratio(repo_path: 'cloned_repo_path'):
+    """
+    checking for edu mails using the domains from:
+    https://github.com/leereilly/swot
+    :param repo_path:
+    :return:
+    """
+    def extract_mail(line):
+        return line.split('<')[-1].split('>')[0]
+
+    old_pwd = os.getcwd()
+    os.chdir(repo_path)
+    print('chdir')
+    # result = subprocess.run(['git', 'shortlog', '-sne'], stdout=subprocess.PIPE).stdout
+    # result = subprocess.check_output('git shortlog -sne | tee', shell=True)
+    # result = result.decode('utf-8')
+    result = os.popen('git shortlog -sne | tee').read()
+    os.chdir(old_pwd)
+
+    print('res:', result)
+    mails = [extract_mail(line) for line in result.split('\n')]
+    print('mails:', mails)
+    return sum(is_edu_mail(mail) for mail in mails) / len(mails)
