@@ -104,14 +104,8 @@ def edu_mail_ratio(repo_path: 'cloned_repo_path'):
 
     old_pwd = os.getcwd()
     os.chdir(repo_path)
-    print('chdir')
-    # result = subprocess.run(['git', 'shortlog', '-sne'], stdout=subprocess.PIPE).stdout
-    # result = subprocess.check_output('git shortlog -sne | tee', shell=True)
-    # result = result.decode('utf-8')
-    result = os.popen('git shortlog -sne | tee').read()
+    result = subprocess.check_output('git log --format="%ae" | sort | uniq', shell=True).decode('utf-8')
     os.chdir(old_pwd)
 
-    print('res:', result)
-    mails = [extract_mail(line) for line in result.split('\n')]
-    print('mails:', mails)
-    return sum(is_edu_mail(mail) for mail in mails) / len(mails)
+    mails = [extract_mail(line) for line in result.split('\n') if line != '']
+    return sum(is_edu_mail(mail) for mail in mails) / len(mails) if mails else 0.0
