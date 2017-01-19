@@ -1753,6 +1753,7 @@ edu_mails = [
     'uni-paderborn.de',
     'uni-passau.de',
     'uni-potsdam.de',
+    'student.hpi.uni-potsdam.de',
     'uni-regensburg.de',
     'uni-rostock.de',
     'uni-saarland.de',
@@ -7433,15 +7434,17 @@ tree = {}
 for mail in edu_mails:
     curr = tree
     for part in mail.split('.')[::-1]:
-        curr[part] = {}
+        if part not in curr:
+            curr[part] = {}
         curr = curr[part]
 
 
 def is_edu_mail(mail):
     global tree
 
+    domain = mail.split('@')[-1]
     curr = tree
-    for part in mail.split('.')[::-1]:
+    for part in domain.split('.')[::-1]:
         if part not in curr:
             return False
         curr = curr[part]
