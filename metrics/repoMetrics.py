@@ -56,7 +56,7 @@ def avg_folder_depth(repo_path: 'cloned_repo_path'):
 
 @CachedMetric
 def avg_entropy(repo_path: 'cloned_repo_path'):
-    read_max_bytes = 2**13  # 8192
+    read_max_bytes = 2 ** 13  # 8192
     count = 0
     sum_entropy = 0
 
@@ -75,12 +75,14 @@ def avg_entropy(repo_path: 'cloned_repo_path'):
 
     return sum_entropy / count
 
+
 @CachedMetric
 def is_io_page(repo: 'repo_overview'):
     if repo.name.endswith('github.io'):
         return 1
     else:
         return 0
+
 
 @CachedMetric
 def html_count(repo_path: 'cloned_repo_path'):
@@ -91,6 +93,15 @@ def html_count(repo_path: 'cloned_repo_path'):
                 count += 1
     return count
 
+
+def execute_in_dir(func, dir):
+    old_pwd = os.getcwd()
+    os.chdir(dir)
+    result = func()
+    os.chdir(old_pwd)
+    return result
+
+
 @CachedMetric
 def edu_mail_ratio(repo_path: 'cloned_repo_path'):
     """
@@ -99,13 +110,33 @@ def edu_mail_ratio(repo_path: 'cloned_repo_path'):
     :param repo_path:
     :return:
     """
-    def extract_mail(line):
-        return line.split('<')[-1].split('>')[0]
+    def git_list_contributor_mails():
+        return subprocess.check_output('git log --format="%ae" | sort | uniq', shell=True).decode('utf-8')
 
-    old_pwd = os.getcwd()
-    os.chdir(repo_path)
-    result = subprocess.check_output('git log --format="%ae" | sort | uniq', shell=True).decode('utf-8')
-    os.chdir(old_pwd)
-
-    mails = [extract_mail(line) for line in result.split('\n') if line != '']
+    result = execute_in_dir(git_list_contributor_mails, repo_path)
+    mails = [line for line in result.split('\n') if line != '']
     return sum(is_edu_mail(mail) for mail in mails) / len(mails) if mails else 0.0
+
+
+@CachedMetric
+def hw_terminology_commits(repo_path: 'cloned_repo_path'):
+    common_terms = ['exercise', 'assignment', 'question', 'task', 'course', 'homework', 'student']
+
+    def git_list_commit_messages():
+        return subprocess.check_output('git log --format="%ae" | sort | uniq', shell=True).decode('utf-8')
+
+    commit_messages = execute_in_dir(git_list_commit_messages, repo_path)
+    commit_messages = commit_messages.lower()
+    return sum(commit_messages.count(term) for term in common_terms)
+
+
+@CachedMetric
+def hw_terminology_files(repo_path: 'cloned_repo_path'):
+    common_terms = ['exercise', 'assignment', 'question', 'task', 'course', 'homework', 'student']
+    count = 0
+    for _, _, files in os.walk(repo_path):
+        for file in files:
+            file = file.lower()
+            if any(common_term in file for common_term in common_terms):
+                count += 1
+    return count
