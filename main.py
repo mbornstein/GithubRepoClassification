@@ -31,8 +31,11 @@ def aggregate_data(repo_links):
 def get_data(repo_links):
     metrics_data = []
     for link in repo_links:
-        github_metrics = GithubMetrics(link)
-        metrics_data.append([github_metrics.get(m) for m in metrics])
+        try:
+            github_metrics = GithubMetrics(link)
+            metrics_data.append([github_metrics.get(m) for m in metrics])
+        except:
+            print('failed to load repo:', link)
 
     return pd.DataFrame(data=metrics_data, columns=metrics)
 
