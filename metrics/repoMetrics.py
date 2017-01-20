@@ -111,7 +111,7 @@ def edu_mail_ratio(repo_path: 'cloned_repo_path'):
     :return:
     """
     def git_list_contributor_mails():
-        return subprocess.check_output('git log --format="%ae" | sort | uniq', shell=True).decode('utf-8')
+        return subprocess.check_output('git log --format="%ae" | sort | uniq', shell=True).decode('utf-8', errors='ignore')
 
     result = execute_in_dir(git_list_contributor_mails, repo_path)
     mails = [line for line in result.split('\n') if line != '']
@@ -123,7 +123,7 @@ def hw_terminology_commits(repo_path: 'cloned_repo_path'):
     common_terms = ['exercise', 'assignment', 'question', 'task', 'course', 'homework', 'student']
 
     def git_list_commit_messages():
-        return subprocess.check_output('git log --format="%s" | tee', shell=True).decode('utf-8')
+        return subprocess.check_output('git log --format="%s" | tee', shell=True).decode('utf-8', errors='ignore')
 
     commit_messages = execute_in_dir(git_list_commit_messages, repo_path)
     commit_messages = commit_messages.lower()

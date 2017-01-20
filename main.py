@@ -31,12 +31,7 @@ def aggregate_data(repo_links):
 def get_data(repo_links):
     metrics_data = []
     for link in repo_links:
-        try:
-            github_metrics = GithubMetrics(link)
-            metrics_data.append([github_metrics.get(m) for m in metrics])
-        except:
-            print('failed to load repo:', link)
-
+        metrics_data.append([GithubMetrics(link).get(m) for m in metrics])
     return pd.DataFrame(data=metrics_data, columns=metrics)
 
 
@@ -146,9 +141,9 @@ def main():
     learn_full(algorithms)
 
     # use only combinations of best N if runtime is too high
-    print('\nTwo step classification:')
-    two_step_algos = [TwoStepClassifier(algo_a, algo_b) for algo_a, algo_b in itertools.product(algorithms, copy.deepcopy(algorithms))]
-    learn_full(two_step_algos)
+    #print('\nTwo step classification:')
+    #two_step_algos = [TwoStepClassifier(algo_a, algo_b) for algo_a, algo_b in itertools.product(algorithms, copy.deepcopy(algorithms))]
+    #learn_full(two_step_algos)
 
     # TODO: voting with best N algorithms
 
