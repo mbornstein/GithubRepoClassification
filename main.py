@@ -11,6 +11,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import VotingClassifier
 from customClassifier.kmeans import CustomKMeans
 from customClassifier.TwoStepClassifier import TwoStepClassifier
 from sklearn.model_selection import cross_val_score
@@ -87,6 +88,13 @@ def main():
         CustomKMeans(KMeans(n_clusters=15, random_state=1337)),
         CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
         GradientBoostingClassifier(learning_rate=0.15, random_state=1337),
+        VotingClassifier([('svc', SVC(C=20.0, random_state=1337)),
+                          ('rf', RandomForestClassifier(n_estimators=100, random_state=1337)),
+                          ('mlp', MLPClassifier(max_iter=20000, hidden_layer_sizes=(50, 20), random_state=1337, shuffle=False,
+                                        learning_rate='adaptive')),
+                          ('mlp2', MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive')),
+                          #('gb', GradientBoostingClassifier(learning_rate=0.15, random_state=1337)),
+                          ], n_jobs=-1)
     ]
 
     importer = DatasetImporter('data/testset.csv')
