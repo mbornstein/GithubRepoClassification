@@ -5,11 +5,11 @@ import sklearn.metrics
 from sklearn.externals import joblib
 
 from main import get_data, normalize_data
-from importer.testDataImporter import TestDataImporter
+from importer.datasetImporter import DatasetImporter
 
 
 def main():
-    importer = TestDataImporter('data/testset.csv')
+    importer = DatasetImporter('data/testset.csv')
 
     # Train Data
     X_train = get_data(importer.trainset.repos)

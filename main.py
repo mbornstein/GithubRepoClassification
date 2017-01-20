@@ -12,8 +12,9 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from customClassifier.kmeans import CustomKMeans
 from customClassifier.TwoStepClassifier import TwoStepClassifier
+from sklearn.model_selection import cross_val_score
 
-from importer.testDataImporter import TestDataImporter
+from importer.datasetImporter import DatasetImporter
 from metrics.githubMetrics import GithubMetrics, metricCollection
 
 metrics = list(metricCollection.keys())
@@ -28,13 +29,6 @@ def aggregate_data(repo_links):
     return pd.DataFrame(data=metrics_data, columns=['repo'] + metrics)
 
 
-def get_data(repo_links):
-    metrics_data = []
-    for link in repo_links:
-        metrics_data.append([GithubMetrics(link).get(m) for m in metrics])
-    return pd.DataFrame(data=metrics_data, columns=metrics)
-
-
 def normalize_data(data):
     metric_list = data.columns
     norm_data = pd.DataFrame({
@@ -47,74 +41,31 @@ def normalize_data(data):
     return norm_data
 
 
-def train_and_test(algo, train, y_train, test, y_test):
-    algo.fit(train, y_train)
-    return algo.score(test, y_test)
-
-
-def train_and_test_multiple(algos, train, y_train, test, y_test):
-    print('Null accuracy', max([len(y_test[y_test == x]) for x in np.unique(y_test)]) / len(y_test))
+def train_and_test_multiple(algos, X, y):
+    #print('Null accuracy', max([len(y_test[y_test == x]) for x in np.unique(y_test)]) / len(y_test))
     print('Accuracies:')
     for algo in algos:
-        accuracy = train_and_test(algo, train, y_train, test, y_test)
+        accuracy = cross_val_score(algo, X, y)
         if type(algo) == TwoStepClassifier:
             print(type(algo.model1).__name__, '+', type(algo.model2).__name__ + ':\t', accuracy)
         else:
-            print(type(algo).__name__ + ':\t', accuracy)
+            print(type(algo).__name__ + ':\t', accuracy.mean())
 
 
-def learn_full(algos):
-    importer = TestDataImporter('data/testset.csv')
-
-    # Train Data
-    data_train = get_data(importer.trainset.repos)
-    data_train = normalize_data(data_train)
-    y_data_train = np.array(importer.trainset.classification)
-
-    # Test Data
-    data_test = get_data(importer.testset.repos)
-    data_test = normalize_data(data_test)
-    y_data_test = np.array(importer.testset.classification)
-
-    train_and_test_multiple(algos, data_train, y_data_train, data_test, y_data_test)
+def learn_full(algos, importer):
+    train_and_test_multiple(algos, normalize_data(importer.data), importer.target)
 
 
-def learn_step_one(algos):
-    importer = TestDataImporter('data/testset.csv')
-
-    # Train Data
-    data_train = get_data(importer.trainset.repos)
-    data_train = normalize_data(data_train)
-    y_data_train = np.array(importer.trainset.classification)
-    y_data_train = np.array(['NO-DEV', 'DEV'])[(y_data_train == 'DEV') * 1]
-
-    # Test Data
-    data_test = get_data(importer.testset.repos)
-    data_test = normalize_data(data_test)
-    y_data_test = np.array(importer.testset.classification)
-    y_data_test = np.array(['NO-DEV', 'DEV'])[(y_data_test == 'DEV') * 1]
-
-    train_and_test_multiple(algos, data_train, y_data_train, data_test, y_data_test)
+def learn_step_one(algos, importer):
+    X = normalize_data(importer.data)
+    y = np.array(['NO-DEV', 'DEV'])[(importer.target == 'DEV') * 1]
+    train_and_test_multiple(algos, X, y)
 
 
-def learn_step_two(algos):
-    importer = TestDataImporter('data/testset.csv')
-
-    # Train Data
-    data_train = get_data(importer.trainset.repos)
-    data_train = normalize_data(data_train)
-    y_data_train = np.array(importer.trainset.classification)
-    data_train = data_train[y_data_train != 'DEV']
-    y_data_train = y_data_train[y_data_train != 'DEV']
-
-    # Test Data
-    data_test = get_data(importer.testset.repos)
-    data_test = normalize_data(data_test)
-    y_data_test = np.array(importer.testset.classification)
-    data_test = data_test[y_data_test != 'DEV']
-    y_data_test = y_data_test[y_data_test != 'DEV']
-
-    train_and_test_multiple(algos, data_train, y_data_train, data_test, y_data_test)
+def learn_step_two(algos, importer):
+    y = importer.target[importer.target != 'DEV']
+    X = normalize_data(importer.data)[y != 'DEV']
+    train_and_test_multiple(algos, X, y)
 
 
 def main():
@@ -131,14 +82,16 @@ def main():
         CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
     ]
 
+    importer = DatasetImporter('data/testset.csv')
+
     # TODO: also train with unnormalized data
 
     print('\nStep 1 learning')
-    learn_step_one(algorithms)
+    learn_step_one(algorithms, importer)
     print('\nStep 2 learning')
-    learn_step_two(algorithms)
+    learn_step_two(algorithms, importer)
     print('\nFull learning')
-    learn_full(algorithms)
+    learn_full(algorithms, importer)
 
     # use only combinations of best N if runtime is too high
     #print('\nTwo step classification:')

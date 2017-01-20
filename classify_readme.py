@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
 
 from metrics.githubMetrics import GithubMetrics, metricCollection
-from importer.testDataImporter import TestDataImporter
+from importer.datasetImporter import DatasetImporter
 
 metrics = list(metricCollection.keys())
 
@@ -28,7 +28,7 @@ def getReadmeContent(repo_url):
     return content
 
 if __name__ == '__main__':
-    importer = TestDataImporter('data/testset.csv')
+    importer = DatasetImporter('data/testset.csv')
 
     train_texts = [getReadmeContent(repo_url) for repo_url in importer.trainset.repos]
     print(importer.trainset.classification)
