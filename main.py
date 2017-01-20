@@ -42,12 +42,12 @@ def normalize_data(data):
 
 
 def train_and_test_multiple(algos, X, y):
-    #print('Null accuracy', max([len(y_test[y_test == x]) for x in np.unique(y_test)]) / len(y_test))
+    print('Null accuracy', max([len(y[y == element]) for element in np.unique(y)]) / len(y))
     print('Accuracies:')
     for algo in algos:
         accuracy = cross_val_score(algo, X, y)
         if type(algo) == TwoStepClassifier:
-            print(type(algo.model1).__name__, '+', type(algo.model2).__name__ + ':\t', accuracy)
+            print(type(algo.model1).__name__, '+', type(algo.model2).__name__ + ':\t', accuracy.mean())
         else:
             print(type(algo).__name__ + ':\t', accuracy.mean())
 
@@ -78,8 +78,8 @@ def main():
         RandomForestClassifier(n_estimators=100, random_state=1337),
         MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive'),
         MLPClassifier(max_iter=20000, hidden_layer_sizes=(50,20), random_state=1337, shuffle=False, learning_rate='adaptive'),
-        #CustomKMeans(KMeans(n_clusters=15, random_state=1337)),
-        #CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
+        CustomKMeans(KMeans(n_clusters=15, random_state=1337)),
+        CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
     ]
 
     importer = DatasetImporter('data/testset.csv')
@@ -94,7 +94,7 @@ def main():
     # use only combinations of best N if runtime is too high
     #print('\nTwo step classification:')
     #two_step_algos = [TwoStepClassifier(algo_a, algo_b) for algo_a, algo_b in itertools.product(algorithms, copy.deepcopy(algorithms))]
-    #learn_full(two_step_algos)
+    #learn_full(two_step_algos, importer)
 
     # TODO: voting with best N algorithms
 
