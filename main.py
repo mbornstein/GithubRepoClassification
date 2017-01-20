@@ -47,9 +47,10 @@ def train_and_test_multiple(algos, X, y):
     for algo in algos:
         accuracy = cross_val_score(algo, X, y)
         if type(algo) == TwoStepClassifier:
-            print(type(algo.model1).__name__, '+', type(algo.model2).__name__ + ':\t', accuracy.mean())
+            print(type(algo.model1).__name__, '+', type(algo.model2).__name__ + ':\t', end='')
         else:
-            print(type(algo).__name__ + ':\t', accuracy.mean())
+            print(type(algo).__name__ + ':\t', end='')
+        print('%0.3f +/- %0.2f' % (accuracy.mean(), accuracy.std() * 2))
 
 
 def learn_full(algos, importer):
@@ -101,8 +102,6 @@ def main():
     #print('\nTwo step classification:')
     #two_step_algos = [TwoStepClassifier(algo_a, algo_b) for algo_a, algo_b in itertools.product(algorithms, copy.deepcopy(algorithms))]
     #learn_full(two_step_algos, importer)
-
-    # TODO: voting with best N algorithms
 
 
 if __name__ == '__main__':
