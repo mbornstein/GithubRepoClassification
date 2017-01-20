@@ -19,6 +19,9 @@ class CustomKMeans:
     def score(self, data, y):
         return np.mean(self.predict(data) == y)
 
+    def get_params(self, deep=True):
+        return self.model.get_params(deep)
+
     def _assign_cluster_classes(self, predictions, expected):
         cluster_count = self.model.cluster_centers_.shape[0]
 

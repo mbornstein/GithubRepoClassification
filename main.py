@@ -64,7 +64,7 @@ def learn_step_one(algos, importer):
 
 def learn_step_two(algos, importer):
     y = importer.target[importer.target != 'DEV']
-    X = normalize_data(importer.data)[y != 'DEV']
+    X = normalize_data(importer.data)[importer.target != 'DEV']
     train_and_test_multiple(algos, X, y)
 
 
@@ -78,13 +78,11 @@ def main():
         RandomForestClassifier(n_estimators=100, random_state=1337),
         MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive'),
         MLPClassifier(max_iter=20000, hidden_layer_sizes=(50,20), random_state=1337, shuffle=False, learning_rate='adaptive'),
-        CustomKMeans(KMeans(n_clusters=15, random_state=1337)),
-        CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
+        #CustomKMeans(KMeans(n_clusters=15, random_state=1337)),
+        #CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
     ]
 
     importer = DatasetImporter('data/testset.csv')
-
-    # TODO: also train with unnormalized data
 
     print('\nStep 1 learning')
     learn_step_one(algorithms, importer)
