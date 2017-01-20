@@ -23,3 +23,6 @@ class TwoStepClassifier:
 
     def score(self, data, y):
         return np.mean(self.predict(data) == y)
+
+    def get_params(self, deep=True):
+        return {'model1': self.model1, 'model2': self.model2}
