@@ -56,6 +56,10 @@ def learn_full(algos, importer):
     train_and_test_multiple(algos, normalize_data(importer.data), importer.target)
 
 
+def learn_full_unnormalized(algos, importer):
+    train_and_test_multiple(algos, importer.data, importer.target)
+
+
 def learn_step_one(algos, importer):
     X = normalize_data(importer.data)
     y = np.array(['NO-DEV', 'DEV'])[(importer.target == 'DEV') * 1]
@@ -88,6 +92,8 @@ def main():
     learn_step_one(algorithms, importer)
     print('\nStep 2 learning')
     learn_step_two(algorithms, importer)
+    print('\nFull learning without normalization')
+    learn_full_unnormalized(algorithms, importer)
     print('\nFull learning')
     learn_full(algorithms, importer)
 
