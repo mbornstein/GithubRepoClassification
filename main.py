@@ -10,6 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from customClassifier.kmeans import CustomKMeans
 from customClassifier.TwoStepClassifier import TwoStepClassifier
 from sklearn.model_selection import cross_val_score
@@ -85,6 +86,7 @@ def main():
         MLPClassifier(max_iter=20000, hidden_layer_sizes=(50,20), random_state=1337, shuffle=False, learning_rate='adaptive'),
         CustomKMeans(KMeans(n_clusters=15, random_state=1337)),
         CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
+        GradientBoostingClassifier(learning_rate=0.15, random_state=1337),
     ]
 
     importer = DatasetImporter('data/testset.csv')
