@@ -123,7 +123,7 @@ def hw_terminology_commits(repo_path: 'cloned_repo_path'):
     common_terms = ['exercise', 'assignment', 'question', 'task', 'course', 'homework', 'student']
 
     def git_list_commit_messages():
-        return subprocess.check_output('git log --format="%s" | sort | uniq', shell=True).decode('utf-8')
+        return subprocess.check_output('git log --format="%s" | tee', shell=True).decode('utf-8')
 
     commit_messages = execute_in_dir(git_list_commit_messages, repo_path)
     commit_messages = commit_messages.lower()
