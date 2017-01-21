@@ -19,7 +19,7 @@ def predict(clf, x):
 def getReadmeContent(repo_url):
     path = GithubMetrics(repo_url).get_cloned_repo_path()
     content = ''
-    for filename in ['REAMDME.md', 'Readme.org', 'readme.txt', 'README', 'README.mkd']:
+    for filename in ['README.md', 'Readme.org', 'readme.txt', 'README', 'README.mkd']:
         try:
             content = open(path + '/' + filename, 'r').read()
             return content
