@@ -84,18 +84,18 @@ def main():
                           ('mlp', MLPClassifier(max_iter=20000, hidden_layer_sizes=(50, 20), random_state=1337, shuffle=False,
                                         learning_rate='adaptive')),
                           ('mlp2', MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive')),
-                          #('gb', GradientBoostingClassifier(learning_rate=0.15, random_state=1337)),
+                          ('gb', GradientBoostingClassifier(learning_rate=0.15, random_state=1337)),
                           ], n_jobs=1)
     ]
 
     importer = DatasetImporter('data/testset.csv')
 
     print('\nStep 1 learning')
-    learn_step_one(algorithms, importer)
+    #learn_step_one(algorithms, importer)
     print('\nStep 2 learning')
-    learn_step_two(algorithms, importer)
+    #learn_step_two(algorithms, importer)
     print('\nFull learning without normalization')
-    learn_full_unnormalized(algorithms, importer)
+    #learn_full_unnormalized(algorithms, importer)
     print('\nFull learning')
     learn_full(algorithms, importer)
 
