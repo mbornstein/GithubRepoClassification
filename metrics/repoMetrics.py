@@ -140,7 +140,7 @@ def doc_terms_in_readme(repo_path: 'cloned_repo_path'):
     for directory, _, files in os.walk(repo_path):
         for file in files:
             if file.lower() in readme_files:
-                file_content = open(os.path.join(directory, file), 'r').read()
+                file_content = open(os.path.join(directory, file), 'rb').read().decode('utf-8', errors='ignore')
                 count += sum(file_content.count(term) for term in common_terms)
     return count
 
