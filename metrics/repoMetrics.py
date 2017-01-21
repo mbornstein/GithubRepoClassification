@@ -84,16 +84,6 @@ def is_io_page(repo: 'repo_overview'):
         return 0
 
 
-@CachedMetric
-def html_count(repo_path: 'cloned_repo_path'):
-    count = 0
-    for _, _, files in os.walk(repo_path):
-        for file in files:
-            if file.endswith('.html'):
-                count += 1
-    return count
-
-
 def execute_in_dir(func, dir):
     old_pwd = os.getcwd()
     os.chdir(dir)
@@ -143,12 +133,47 @@ def hw_terminology_files(repo_path: 'cloned_repo_path'):
 
 
 @CachedMetric
-def hw_terminology_files(repo_path: 'cloned_repo_path'):
-    common_terms = ['exercise', 'assignment', 'question', 'task', 'course', 'homework', 'student']
+def doc_terms_in_readme(repo_path: 'cloned_repo_path'):
+    readme_files = [e.lower() for e in ['README.md', 'Readme.org', 'readme.txt', 'README', 'README.mkd']]
+    common_terms = ['documentation', 'usage', 'guide', 'installation', 'getting started', 'quickstart', 'tutorial', 'setup']
     count = 0
     for _, _, files in os.walk(repo_path):
         for file in files:
             file = file.lower()
-            if any(common_term in file for common_term in common_terms):
-                count += 1
+            if file in readme_files:
+                file_content = open(file, 'r').read()
+                count += sum(file_content.count(term) for term in common_terms)
     return count
+
+
+def count_file_with_ending(repo_path, ending, absolute=False):
+    file_count = 0
+    count = 0
+    for _, _, files in os.walk(repo_path):
+        for file in files:
+            file_count += 1
+            if file.endswith(ending):
+                count += 1
+    if absolute:
+        file_count = 1
+    return count / file_count if file_count != 0 else 0.0
+
+
+@CachedMetric
+def html_count(repo_path: 'cloned_repo_path'):
+    return count_file_with_ending(repo_path, '.html')
+
+
+@CachedMetric
+def png_count(repo_path: 'cloned_repo_path'):
+    return count_file_with_ending(repo_path, '.png')
+
+
+@CachedMetric
+def md_count(repo_path: 'cloned_repo_path'):
+    return count_file_with_ending(repo_path, '.md', absolute=True)
+
+
+@CachedMetric
+def pdf_count(repo_path: 'cloned_repo_path'):
+    return count_file_with_ending(repo_path, '.pdf')
