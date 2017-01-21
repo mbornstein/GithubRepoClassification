@@ -137,10 +137,10 @@ def doc_terms_in_readme(repo_path: 'cloned_repo_path'):
     readme_files = [e.lower() for e in ['README.md', 'Readme.org', 'readme.txt', 'README', 'README.mkd']]
     common_terms = ['documentation', 'usage', 'guide', 'installation', 'getting started', 'quickstart', 'tutorial', 'setup']
     count = 0
-    for _, _, files in os.walk(repo_path):
+    for directory, _, files in os.walk(repo_path):
         for file in files:
             if file.lower() in readme_files:
-                file_content = open(file, 'r').read()
+                file_content = open(os.path.join(directory, file), 'r').read()
                 count += sum(file_content.count(term) for term in common_terms)
     return count
 
