@@ -140,3 +140,15 @@ def hw_terminology_files(repo_path: 'cloned_repo_path'):
             if any(common_term in file for common_term in common_terms):
                 count += 1
     return count
+
+
+@CachedMetric
+def hw_terminology_files(repo_path: 'cloned_repo_path'):
+    common_terms = ['exercise', 'assignment', 'question', 'task', 'course', 'homework', 'student']
+    count = 0
+    for _, _, files in os.walk(repo_path):
+        for file in files:
+            file = file.lower()
+            if any(common_term in file for common_term in common_terms):
+                count += 1
+    return count
