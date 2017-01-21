@@ -18,5 +18,6 @@ class DatasetImporter:
         metrics = list(metricCollection.keys())
         metrics_data = []
         for link in repo_links:
-            metrics_data.append([GithubMetrics(link).get(m) for m in metrics])
+            githubMetrics = GithubMetrics(link)
+            metrics_data.append([githubMetrics.get(m) for m in metrics])
         return pd.DataFrame(data=metrics_data, columns=metrics)
