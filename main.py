@@ -24,7 +24,7 @@ metrics = list(metricCollection.keys())
 
 def normalize_data(data):
     norm_data = pd.DataFrame()
-    skip_log = {'avg_entropy', 'up_to_dateness'}
+    skip_log = {'avg_entropy', 'up_to_dateness', 'edu_mail_ratio'}
     for col in data.columns:
         norm_data[col] = data[col]
         if col not in skip_log:

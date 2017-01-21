@@ -27,6 +27,7 @@ def open_issue_count(repo: 'repo_overview'):
 def up_to_dateness(repo: 'repo_overview'):
     return (datetime.now() - repo.pushed_at).total_seconds()
 
+
 @CachedMetric
 def doc_in_description_or_title(repo: 'repo_overview'):
     terms = ['documentation', 'docs']
