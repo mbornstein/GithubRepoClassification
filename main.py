@@ -22,24 +22,15 @@ from metrics.githubMetrics import GithubMetrics, metricCollection
 metrics = list(metricCollection.keys())
 
 
-def aggregate_data(repo_links):
-    metrics_data = []
-    for link in repo_links:
-        github_metrics = GithubMetrics(link)
-        metrics_data.append([link] + [github_metrics.get(m) for m in metrics])
-
-    return pd.DataFrame(data=metrics_data, columns=['repo'] + metrics)
-
-
 def normalize_data(data):
-    metric_list = data.columns
-    norm_data = pd.DataFrame({
-        'avg_entropy': data['avg_entropy']
-    })
-    for metric in metric_list[1:]:
-        norm_data[metric] = np.log(data[metric] + 1)
-        norm_data[metric] = (norm_data[metric] - norm_data[metric].min()) / \
-                            (norm_data[metric].max() - norm_data[metric].min())
+    norm_data = pd.DataFrame()
+    skip_log = {'avg_entropy', 'up_to_dateness'}
+    for col in data.columns:
+        norm_data[col] = data[col]
+        if col not in skip_log:
+            norm_data[col] = np.log(data[col] + 1)
+        norm_data[col] = (norm_data[col] - norm_data[col].min()) / \
+                            (norm_data[col].max() - norm_data[col].min())
     return norm_data
 
 
@@ -94,7 +85,7 @@ def main():
                                         learning_rate='adaptive')),
                           ('mlp2', MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive')),
                           #('gb', GradientBoostingClassifier(learning_rate=0.15, random_state=1337)),
-                          ], n_jobs=-1)
+                          ], n_jobs=1)
     ]
 
     importer = DatasetImporter('data/testset.csv')
