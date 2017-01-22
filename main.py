@@ -110,6 +110,7 @@ def main():
     ]
 
     importer = DatasetImporter('data/testset.csv')
+    bla = DatasetImporter('data/valset.csv')
 
     print('\nStep 1 learning')
     # learn_step_one(algorithms, importer)
