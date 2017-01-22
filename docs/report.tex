@@ -84,6 +84,9 @@ scale features (logarithm)
 
 
 \section{Program usage}
+The entry point of the program is main.py. Running \textit{python3 main.py} starts the test mode. This mode trains and validates different models. When given a file as parameter (e.g. \textit{python3 main.py data/valset\_unclassified.txt}), the program classifies all repositories in that file and print the results to stdout.
+
+Saving the trained model with pickle or joblib resulted a strange loss in accuracy when loading it again. That is why we fall to the solution of training the model at the start of the prediction phase.
 
 
 \end{document}
