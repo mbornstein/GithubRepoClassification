@@ -12,6 +12,8 @@ class GithubMetrics:
 
     def __init__(self, repo_url):
         self.repo_url = repo_url
+        if self.repo_url.endswith('/'):
+            self.repo_url = self.repo_url[:-1]
         self.full_name = None
         self.repo_overview = None
 
