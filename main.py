@@ -33,7 +33,7 @@ def normalize_data(data):
     skip_log = ['avg_entropy', 'up_to_dateness', 'edu_mail_ratio']
     X_log = np.log(data + 1.0)
     X_log[skip_log] = data[skip_log]
-    return minmax_scale(X_log)
+    return pd.DataFrame(minmax_scale(X_log), columns=data.columns)
 
 
 def train_and_test_multiple(algos, X, y):

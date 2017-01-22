@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from metrics.caching import CachedMetric
@@ -30,6 +31,29 @@ def up_to_dateness(repo: 'repo_overview'):
 
 @CachedMetric
 def doc_in_description_or_title(repo: 'repo_overview'):
-    terms = ['documentation', 'docs']
+    terms = ['documentation', 'docs', 'documents']
     return sum(repo.description.lower().count(term) for term in terms if repo.description) + \
            sum(repo.name.lower().count(term) for term in terms)
+
+
+@CachedMetric
+def intro_or_course_in_description_or_title(repo: 'repo_overview'):
+    terms = ['intro', 'course']
+    return sum(repo.description.lower().count(term) for term in terms if repo.description) + \
+           sum(repo.name.lower().count(term) for term in terms)
+
+
+@CachedMetric
+def hw_in_description_or_title(repo: 'repo_overview'):
+    terms = ['homework', 'assignment']
+    return sum(repo.description.lower().count(term) for term in terms if repo.description) + \
+           sum(repo.name.lower().count(term) for term in terms)
+
+
+@CachedMetric
+def is_link_in_description(repo: 'repo_overview'):
+    regex = r'(ftp|https?)://[^\.]+\.[a-z]{2,4}'
+    if repo.description and re.search(regex, repo.description.lower()):
+        return 1
+    else:
+        return 0

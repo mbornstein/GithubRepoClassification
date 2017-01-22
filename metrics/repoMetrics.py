@@ -118,7 +118,7 @@ def edu_mail_ratio(repo_path: 'cloned_repo_path'):
 
 @CachedMetric
 def hw_terminology_commits(repo_path: 'cloned_repo_path'):
-    common_terms = ['exercise', 'assignment', 'question', 'task', 'course', 'homework', 'student']
+    common_terms = ['exercise', 'assignment', 'question', 'task', 'homework', 'student', 'solution']
 
     def git_list_commit_messages():
         return subprocess.check_output('git log --format="%s" | tee', shell=True).decode('utf-8', errors='ignore')
@@ -129,10 +129,10 @@ def hw_terminology_commits(repo_path: 'cloned_repo_path'):
 
 
 @CachedMetric
-def hw_terminology_files(repo_path: 'cloned_repo_path'):
-    common_terms = ['exercise', 'assignment', 'question', 'task', 'course', 'homework', 'student']
+def hw_terminology_file_or_dir_names(repo_path: 'cloned_repo_path'):
+    common_terms = ['exercise', 'assignment', 'question', 'task', 'homework', 'student', 'solution']
     count = 0
-    for _, _, files in walk(repo_path):
+    for _, dirs, files in walk(repo_path):
         for file in files:
             file = file.lower()
             if any(common_term in file for common_term in common_terms):
@@ -189,6 +189,12 @@ def md_count(repo_path: 'cloned_repo_path'):
 @CachedMetric
 def pdf_count(repo_path: 'cloned_repo_path'):
     return count_file_with_ending(repo_path, '.pdf')
+
+
+@CachedMetric
+def pdf_count(repo_path: 'cloned_repo_path'):
+    return count_file_with_ending(repo_path, '.tex')
+
 
 @CachedMetric
 def source_code_file_ratio(repo_path: 'cloned_repo_path'):
