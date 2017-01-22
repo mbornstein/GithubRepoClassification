@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import itertools
 import copy
+import sys
 
 # learning algorithms
 from sklearn.cluster import KMeans
@@ -17,10 +18,12 @@ from customClassifier.TwoStepClassifier import TwoStepClassifier
 from sklearn.model_selection import cross_val_score
 
 from importer.datasetImporter import DatasetImporter
-from metrics.githubMetrics import GithubMetrics, metricCollection
 
-metrics = list(metricCollection.keys())
-
+# We get a deadlock with the VotingClassifier when running multiple threads under mac os
+if sys.platform == "darwin":
+    N_JOBS = 1
+else:
+    N_JOBS = -1
 
 def normalize_data(data):
     norm_data = pd.DataFrame()
@@ -85,7 +88,7 @@ def main():
                                         learning_rate='adaptive')),
                           ('mlp2', MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive')),
                           ('gb', GradientBoostingClassifier(learning_rate=0.15, random_state=1337)),
-                          ], n_jobs=1)
+                          ], n_jobs=N_JOBS)
     ]
 
     importer = DatasetImporter('data/testset.csv')
