@@ -19,6 +19,8 @@ from customClassifier.TwoStepClassifier import TwoStepClassifier
 from sklearn.model_selection import cross_val_score
 
 from sklearn.pipeline import Pipeline
+from sklearn.externals import joblib
+import pickle
 
 from importer.datasetImporter import DatasetImporter
 
@@ -36,21 +38,27 @@ def normalize_data(data):
     return pd.DataFrame(minmax_scale(X_log), columns=data.columns)
 
 
+def logarithmitize(X):
+    skip_log = ['avg_entropy', 'up_to_dateness', 'edu_mail_ratio']
+    X_log = np.log(X + 1.0)
+    X_log[skip_log] = X[skip_log]
+    return X_log
+
+
 def train_and_test_multiple(algos, X, y):
     print('Null accuracy', max([len(y[y == element]) for element in np.unique(y)]) / len(y))
     print('Accuracies:')
 
+    skip_log = ['avg_entropy', 'up_to_dateness', 'edu_mail_ratio']
+    X_log = np.log(X + 1.0)
+    X_log[skip_log] = X[skip_log]
+
     for algo in algos:
-        skip_log = ['avg_entropy', 'up_to_dateness', 'edu_mail_ratio']
-        X_log = np.log(X + 1.0)
-        X_log[skip_log] = X[skip_log]
-        pipeline = Pipeline([
-            ('range_scale', MinMaxScaler()),
-            ('algo', algo)
-        ])
-        accuracy = cross_val_score(pipeline, X_log, y)
+        accuracy = cross_val_score(algo, X_log, y)
         if type(algo) == TwoStepClassifier:
             print(type(algo.model1).__name__, '+', type(algo.model2).__name__ + ':\t', end='')
+        elif type(algo) == Pipeline:
+            print(type(algo.named_steps['algo']).__name__ + ':\t', end='')
         else:
             print(type(algo).__name__ + ':\t', end='')
         print('%0.3f +/- %0.2f' % (accuracy.mean(), accuracy.std() * 2))
@@ -76,7 +84,9 @@ def learn_step_two(algos, importer):
     train_and_test_multiple(algos, X, y)
 
 
-def main():
+def test():
+    print('Enter test mode: testing different learning models...')
+
     std_logreg = Pipeline([
         ('std', StandardScaler()),
         ('log_reg', LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr', random_state=1337))
@@ -109,14 +119,19 @@ def main():
                           ], n_jobs=N_JOBS)
     ]
 
-    importer = DatasetImporter('data/testset.csv')
-    bla = DatasetImporter('data/valset.csv')
+    algorithms = [Pipeline([
+        ('range_scale', MinMaxScaler()),
+        ('algo', algo)
+    ]) for algo in algorithms]
 
-    print('\nStep 1 learning')
+    importer = DatasetImporter('data/testset.csv')
+    #bla = DatasetImporter('data/valset.csv')
+
+    #print('\nStep 1 learning')
     # learn_step_one(algorithms, importer)
-    print('\nStep 2 learning')
+    #print('\nStep 2 learning')
     # learn_step_two(algorithms, importer)
-    print('\nFull learning without normalization')
+    #print('\nFull learning without normalization')
     # learn_full_unnormalized(algorithms, importer)
     print('\nFull learning')
     learn_full(algorithms, importer)
@@ -126,6 +141,45 @@ def main():
     # two_step_algos = [TwoStepClassifier(algo_a, algo_b) for algo_a, algo_b in itertools.product(algorithms, copy.deepcopy(algorithms))]
     # learn_full(two_step_algos, importer)
 
+def trainAndPredict(repos):
+    #print('Enter train and predict mode. It trains the model and predicts categories of the given repositories')
+
+    std_logreg = Pipeline([
+        ('std', StandardScaler()),
+        ('log_reg', LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr', random_state=1337))
+    ])
+
+    #this is our final model
+    vc = VotingClassifier([('log', std_logreg),
+                      ('svc', SVC(C=20.0, random_state=1337)),
+                      ('rf', RandomForestClassifier(n_estimators=100, random_state=1337)),
+                      ('mlp',
+                       MLPClassifier(max_iter=20000, hidden_layer_sizes=(50, 20), random_state=1337, shuffle=False,
+                                     learning_rate='adaptive')),
+                      ('mlp2',
+                       MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False,
+                                     learning_rate='adaptive', warm_start=True)),
+                      ('gb', GradientBoostingClassifier(learning_rate=0.15, random_state=1337, warm_start=True)),
+                      ], n_jobs=N_JOBS)
+
+    classifier = Pipeline([
+        ('range_scale', MinMaxScaler()),
+        ('model', vc)
+    ])
+
+    #train the classifier
+    importer = DatasetImporter('data/testset.csv')
+    classifier.fit(logarithmitize(importer.data), importer.target)
+
+    # predict gives repositories
+    prediction = classifier.predict(logarithmitize(DatasetImporter.get_data(repos)))
+    for repo, category in zip(repos, prediction):
+        print(repo + ', ' + category)
+
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) < 2:
+        test()
+    else:
+        repos = open(sys.argv[1], 'r').read().split('\n')
+        trainAndPredict(repos)
