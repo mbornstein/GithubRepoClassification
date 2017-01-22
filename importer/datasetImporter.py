@@ -11,10 +11,10 @@ class DatasetImporter:
         self.repos, self.target = zip(*[line.strip().split(',') for line in content])
 
         self.target = np.array(self.target)
-        self.data = self._get_data(self.repos)
+        self.data = self.get_data(self.repos)
 
     @staticmethod
-    def _get_data(repo_links):
+    def get_data(repo_links):
         metrics = list(metricCollection.keys())
         metrics_data = []
         for link in repo_links:
