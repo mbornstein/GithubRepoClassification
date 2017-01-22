@@ -6,6 +6,7 @@ import sys
 
 # learning algorithms
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, minmax_scale
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
@@ -17,6 +18,8 @@ from customClassifier.kmeans import CustomKMeans
 from customClassifier.TwoStepClassifier import TwoStepClassifier
 from sklearn.model_selection import cross_val_score
 
+from sklearn.pipeline import Pipeline
+
 from importer.datasetImporter import DatasetImporter
 
 # We get a deadlock with the VotingClassifier when running multiple threads under mac os
@@ -25,23 +28,27 @@ if sys.platform == "darwin":
 else:
     N_JOBS = -1
 
+
 def normalize_data(data):
-    norm_data = pd.DataFrame()
-    skip_log = {'avg_entropy', 'up_to_dateness', 'edu_mail_ratio'}
-    for col in data.columns:
-        norm_data[col] = data[col]
-        if col not in skip_log:
-            norm_data[col] = np.log(data[col] + 1)
-        norm_data[col] = (norm_data[col] - norm_data[col].min()) / \
-                            (norm_data[col].max() - norm_data[col].min())
-    return norm_data
+    skip_log = ['avg_entropy', 'up_to_dateness', 'edu_mail_ratio']
+    X_log = np.log(data + 1.0)
+    X_log[skip_log] = data[skip_log]
+    return minmax_scale(X_log)
 
 
 def train_and_test_multiple(algos, X, y):
     print('Null accuracy', max([len(y[y == element]) for element in np.unique(y)]) / len(y))
     print('Accuracies:')
+
     for algo in algos:
-        accuracy = cross_val_score(algo, X, y)
+        skip_log = ['avg_entropy', 'up_to_dateness', 'edu_mail_ratio']
+        X_log = np.log(X + 1.0)
+        X_log[skip_log] = X[skip_log]
+        pipeline = Pipeline([
+            ('range_scale', MinMaxScaler()),
+            ('algo', algo)
+        ])
+        accuracy = cross_val_score(pipeline, X_log, y)
         if type(algo) == TwoStepClassifier:
             print(type(algo.model1).__name__, '+', type(algo.model2).__name__ + ':\t', end='')
         else:
@@ -50,7 +57,7 @@ def train_and_test_multiple(algos, X, y):
 
 
 def learn_full(algos, importer):
-    train_and_test_multiple(algos, normalize_data(importer.data), importer.target)
+    train_and_test_multiple(algos, importer.data, importer.target)
 
 
 def learn_full_unnormalized(algos, importer):
@@ -70,23 +77,34 @@ def learn_step_two(algos, importer):
 
 
 def main():
+    std_logreg = Pipeline([
+        ('std', StandardScaler()),
+        ('log_reg', LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr', random_state=1337))
+    ])
 
     algorithms = [
         DecisionTreeClassifier(random_state=1337),
-        LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr', random_state=1337),
-        LogisticRegression(C=1.0, max_iter=100, n_jobs=2, random_state=1337),
+        # LogisticRegression(C=1.0, max_iter=1000, solver='lbfgs', multi_class='ovr', random_state=1337),
+        # LogisticRegression(C=1.0, max_iter=100, n_jobs=2, random_state=1337),
+        std_logreg,
         SVC(C=20.0, random_state=1337),
         RandomForestClassifier(n_estimators=100, random_state=1337),
-        MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive'),
-        MLPClassifier(max_iter=20000, hidden_layer_sizes=(50,20), random_state=1337, shuffle=False, learning_rate='adaptive'),
-        #CustomKMeans(KMeans(n_clusters=15, random_state=1337)),
-        #CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
+        MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False,
+                      learning_rate='adaptive'),
+        MLPClassifier(max_iter=20000, hidden_layer_sizes=(50, 20), random_state=1337, shuffle=False,
+                      learning_rate='adaptive'),
+        # CustomKMeans(KMeans(n_clusters=15, random_state=1337)),
+        # CustomKMeans(KMeans(n_clusters=8, random_state=1337)),
         GradientBoostingClassifier(learning_rate=0.15, random_state=1337),
-        VotingClassifier([('svc', SVC(C=20.0, random_state=1337)),
+        VotingClassifier([('log', std_logreg),
+                          ('svc', SVC(C=20.0, random_state=1337)),
                           ('rf', RandomForestClassifier(n_estimators=100, random_state=1337)),
-                          ('mlp', MLPClassifier(max_iter=20000, hidden_layer_sizes=(50, 20), random_state=1337, shuffle=False,
-                                        learning_rate='adaptive')),
-                          ('mlp2', MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False, learning_rate='adaptive')),
+                          ('mlp',
+                           MLPClassifier(max_iter=20000, hidden_layer_sizes=(50, 20), random_state=1337, shuffle=False,
+                                         learning_rate='adaptive')),
+                          ('mlp2',
+                           MLPClassifier(max_iter=20000, hidden_layer_sizes=(100,), random_state=1337, shuffle=False,
+                                         learning_rate='adaptive')),
                           ('gb', GradientBoostingClassifier(learning_rate=0.15, random_state=1337)),
                           ], n_jobs=N_JOBS)
     ]
@@ -94,18 +112,18 @@ def main():
     importer = DatasetImporter('data/testset.csv')
 
     print('\nStep 1 learning')
-    #learn_step_one(algorithms, importer)
+    # learn_step_one(algorithms, importer)
     print('\nStep 2 learning')
-    #learn_step_two(algorithms, importer)
+    # learn_step_two(algorithms, importer)
     print('\nFull learning without normalization')
-    #learn_full_unnormalized(algorithms, importer)
+    # learn_full_unnormalized(algorithms, importer)
     print('\nFull learning')
     learn_full(algorithms, importer)
 
     # use only combinations of best N if runtime is too high
-    #print('\nTwo step classification:')
-    #two_step_algos = [TwoStepClassifier(algo_a, algo_b) for algo_a, algo_b in itertools.product(algorithms, copy.deepcopy(algorithms))]
-    #learn_full(two_step_algos, importer)
+    # print('\nTwo step classification:')
+    # two_step_algos = [TwoStepClassifier(algo_a, algo_b) for algo_a, algo_b in itertools.product(algorithms, copy.deepcopy(algorithms))]
+    # learn_full(two_step_algos, importer)
 
 
 if __name__ == '__main__':
