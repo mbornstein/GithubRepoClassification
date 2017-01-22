@@ -189,3 +189,17 @@ def md_count(repo_path: 'cloned_repo_path'):
 @CachedMetric
 def pdf_count(repo_path: 'cloned_repo_path'):
     return count_file_with_ending(repo_path, '.pdf')
+
+@CachedMetric
+def source_code_file_ratio(repo_path: 'cloned_repo_path'):
+    filename_extensions = {'bash', 'c', 'c++', 'cc', 'cp', 'cpp', 'cpp', 'cs', 'cxx', 'do', 'erl', 'go',
+                           'hs', 'java', 'js', 'jsp', 'lisp', 'lua', 'm', 'php', 'pl', 'py', 'rb', 'scala',
+                           'sh', 'sim', 'sql', 'swift'}
+    file_count = 0
+    count = 0
+    for _, _, files in walk(repo_path):
+        for file in files:
+            file_count += 1
+            if file.split('.')[-1].lower() in filename_extensions:
+                count += 1
+    return count / file_count if file_count != 0 else 0.0
