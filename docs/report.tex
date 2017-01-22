@@ -34,7 +34,7 @@ scale features (logarithm)
 	This is the number files in the repository excluding the .git directory.
 	
 	TODO: boxplot + analysis
-	Additionally we calculate the ratio of specific file types to the total file count. There are metrics for each of the following file types: pdf, html, png, source code and markdown. We identify these file types by the file extension.
+	Additionally we calculate the ratio of specific file types to the total file count. There are metrics for each of the following file types: pdf, html, png, latex, source code and markdown. We identify these file types by the file extension.
 	TODO: no boxplot but why these types?
 	\item[Forks count]
 	This metric contains the number of forks for a repository.
@@ -52,15 +52,27 @@ scale features (logarithm)
 	This is the ration between university mail addresses to all unique addresses that appear in a repository. We extract them from the commit messages. We expect EDU to have a high Edu mail ratio.
 	TODO: boxplot 
 	\item[HW terminology in commits]
-	We search all commit messages for common 
+	We search all commit messages for common HW terms and return the number of occurrences. Under common HW terms we understand: 'exercise', 'assignment', 'question', 'task', 'homework', 'student' and 'solution' 
 	\item[Repository size]
+	The repository size in kilobytes. Repositories of each category can have a small size but we only expect DEV, DOCS, DATA and WEB repository to have a big size.
 	\item[Average folder depth]
 	\item[Up-to-dateness]
+	Measures the time since the last commit. We expect HW repositories to have a low up-to-dateness because they are not worked on after deadline.
 	\item[Is github.io page]
-	\item[HW terminology in filenames]
+	Github host websites via Github pages. There are dedicated repositories with the name scheme <username>.github.io. This metrics helps us to identify such repositories as WEB.
+	TODO: box plot
+	\item[HW terminology in filenames or directory names]
+	Like HW terminology in commits but we look for the terms in file names.
+	
 	\item[Is 'doc' in repository title or description]
+	We search for the term 'docs', 'documents' or 'documentation' in the repository title or description. This is a strong indicator if it is a DOC repository.
+	TODO: blox
 	\item[Watcher count]
+	The watcher count indicates the popularity of a repository. We expect only DEV repositories to have a high watcher count. EDU could also have an higher than average watcher count.
+	TODO: blox
 	\item[Intro or course in title or description]
+	This metric searches for the terms 'intro' and 'course' in the repository title and description. If that is the case that is a strong indicator for a EDU repository.
+	TODO: boxplot
 	
 \end{description}
 	
