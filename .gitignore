@@ -1,3 +1,10 @@
+#latex
+*.aux
+*.log
+*.out
+*.pdf
+*.synctex.gz
+
 .idea
 
 # Mac OS

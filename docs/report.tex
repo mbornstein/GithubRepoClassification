@@ -1,0 +1,77 @@
+\documentclass[a4paper]{scrartcl}  
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+\usepackage[margin=.75in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Github Repository Classification}
+
+\begin{document}
+
+\maketitle
+\section{Abstract}
+TODO
+\section{Introduction}
+TODO
+
+\section{Metrics}
+In this section we present the metrics we use for repository classification. We extract them using the Github API and the cloned repository.
+
+scale features (logarithm)
+\begin{description}
+	
+	\item[DOC terms in readme]
+	Returns the number of common DOC terms in the Readme file. Under common DOC terms we understand: 'documentation', 'usage', 'guide', 'installation', 'getting started', 'quickstart', 'tutorial' and 'setup'.
+	
+	TODO: boxplot + analysis
+	\item[File count]
+	This is the number files in the repository excluding the .git directory.
+	
+	TODO: boxplot + analysis
+	Additionally we calculate the ratio of specific file types to the total file count. There are metrics for each of the following file types: pdf, html, png, source code and markdown. We identify these file types by the file extension.
+	TODO: no boxplot but why these types?
+	\item[Forks count]
+	This metric contains the number of forks for a repository.
+	TODO: boxplot + analysis
+	\item[File to folder ratio]
+	This calculates the ratio between number of files and directories. We expect the DOCS and some DEV (e.g. java programs) to have a low file-folder-ratio.
+	TODO: boxplot
+	\item[Open issue count]
+	The number of currently open issues. Many open issues indicate a popular repository. We expect mostly DEV to have a high open issue count.
+	TODO: boxplot
+	\item[Average entropy]
+	The entropy of each repository file is calculated and the average of all these files is returned. We expect DATA and EDU to have a high entropy because of many pictures and videos. DOCS and WEB have a medium entropy because of some pictures. DEV and HW have a low entropy beause they contain mostly source code.
+	TODO: boxplot
+	\item[Edu mail ratio]
+	This is the ration between university mail addresses to all unique addresses that appear in a repository. We extract them from the commit messages. We expect EDU to have a high Edu mail ratio.
+	TODO: boxplot 
+	\item[HW terminology in commits]
+	We search all commit messages for common 
+	\item[Repository size]
+	\item[Average folder depth]
+	\item[Up-to-dateness]
+	\item[Is github.io page]
+	\item[HW terminology in filenames]
+	\item[Is 'doc' in repository title or description]
+	\item[Watcher count]
+	\item[Intro or course in title or description]
+	
+\end{description}
+	
+
+\section{Validation}
+
+
+\section{What we have done}
+
+
+\section{Program usage}
+
+
+\end{document}
