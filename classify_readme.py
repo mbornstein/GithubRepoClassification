@@ -1,19 +1,10 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
 
-from metrics.githubMetrics import GithubMetrics, metricCollection
+from metrics.githubMetrics import GithubMetrics
 from importer.datasetImporter import DatasetImporter
-
-metrics = list(metricCollection.keys())
-
-
-def train(log_reg, data, expected_values):
-    log_reg.fit(data, expected_values)
-
-
-def predict(clf, x):
-    return clf.predict(x)
 
 
 def getReadmeContent(repo_url):
@@ -30,34 +21,22 @@ def getReadmeContent(repo_url):
 if __name__ == '__main__':
     importer = DatasetImporter('data/testset.csv')
 
-    train_texts = [getReadmeContent(repo_url) for repo_url in importer.trainset.repos]
-    print(importer.trainset.classification)
+    X = [getReadmeContent(repo_url) for repo_url in importer.repos]
+    y = importer.target
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
     count_vect = CountVectorizer()
-    X_train_counts = count_vect.fit_transform(train_texts)
-    print('Shape:', X_train_counts.shape)
-
-    #print(count_vect.vocabulary_.get('algorithm'))
-
+    X_train_counts = count_vect.fit_transform(X_train)
     tfidf_transformer = TfidfTransformer()
     X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
 
     # Train
-    clf = MultinomialNB().fit(X_train_tfidf, importer.trainset.classification)
+    clf = MultinomialNB().fit(X_train_tfidf, y_train)
 
-    test_texts = [getReadmeContent(repo_url) for repo_url in importer.testset.repos]
-    X_new_counts = count_vect.transform(test_texts)
+    X_new_counts = count_vect.transform(X_test)
     X_new_tfidf = tfidf_transformer.transform(X_new_counts)
 
-    predicted = predict(clf, X_new_tfidf)
-
-    #for doc, category in zip(test_texts, predicted):
-    #    print(doc, '=>', category)
-
-    correct = 0
-    for i in range(len(predicted)):
-        if importer.testset.classification[i] == predicted[i]:
-            correct += 1
-    print('Accuracy:', correct / len(predicted))
-
-    print(predicted)
+    accuracy = clf.score(X_new_tfidf, y_test)
+    print('Accuracy:', accuracy)
+    print('Predicted:\n', clf.predict(X_new_tfidf))
