@@ -57,7 +57,7 @@ showstringspaces=false            %
 
 
 \title{Github Repository Classification}
-\author{Marvin Bornstein\\ marvin.bornstein@student.hpi.de \and Carsten Walther\\ carsten.walther@student.hpi.de}
+\author{Marvin Bornstein\\ marvin.bornstein@student.hpi.de\\ (mail@mbornstein.de) \and Carsten Walther\\ carsten.walther@student.hpi.de}
 
 \begin{document}
 
@@ -66,7 +66,7 @@ showstringspaces=false            %
 \section{Problem and model selection} % (fold)
 \label{sec:problem_and_model_selection}
 
-The problem was described as a classification problem and we were given a few repositories with their respective labels. With these few data points, we thought of making it an unsupervised learning problem. The idea was to use a clustering algorithm, like \emph{kMeans}, the try to label each cluster using the 5 given data points for each class. This approach did not keep up with the performance of the supervised learning algorithms when we received additional data, though. In the end, it achieved an accuracy of around 57\% with a standard deviation of 2.5\% in comparison to 70\% accuracy of our voting classifier (see section \ref{sec:val}) with a standard deviation of 0.5\%.
+The problem was described as a classification problem and we were given a few repositories with their respective labels. With these few data points, we thought of making it an unsupervised learning problem. The idea was to use a clustering algorithm, like \emph{kMeans}, the try to label each cluster using the 5 given data points for each class. This approach did not keep up with the performance of the supervised learning algorithms when we received additional data, though. In the end, it achieved an accuracy of around 57\% with a standard deviation of 2.5\% in comparison to 70\% accuracy of our voting classifier (see section \ref{sec:val}) with a standard deviation of 0.5\%. 
 
 % section problem_and_model_selection (end)
 
@@ -118,6 +118,10 @@ def hw_terminology_commits(repo_path: 'cloned_repo_path'):
 	\label{sub:metrics_details}
 
 	First, we thought about what characteristics repositories in a specific class might have. Initially, we came up with lots of predictors for \emph{DEV} repositories, since there is lots of stuff to look for, such as the scripting or programing language, the availability of tests a makefile etc. However, it turned out, that the majority of repositories are \emph{DEV} repositories, because that is what Github is usually used for. That is why, we needed to distinguish \emph{DEV} repos from the rest.
+
+	For all, but \emph{avg entropy}, \emph{up-to-dateness} and \emph{education e-mail ratio}, we applied the natural logarithm to weaken the \emph{exponential distribution}. That made sense, because for most of the metrics, the difference between 1 and 5 is more interesting than a difference between 1000 and 1100.
+
+	Also all metrics are scaled to be between 0 and 1 (that does not effect the random forest, but improves the results for the neural networks a lot).
 
 	In oder to estimate how good the features can separate the classes, we plotted box plots containing each class.
 
@@ -302,8 +306,42 @@ def hw_terminology_commits(repo_path: 'cloned_repo_path'):
 
 	% subsection metrics_details (end)
 
+	\subsection{Confusion Matrix} % (fold)
+	\label{sub:confusion_matrix}
+	
+	In order to engineer features that increase the quality of the results, we looked at the confusion matrix. The final features result in a quite balanced matrix, i.e. \emph{DEV} is still overly predicted, but has more correct predictions in a class than wrong ones (see figure \ref{fig:confusion}).
+
+	\begin{figure}[h!]
+		\centering
+		\includegraphics[width=0.75\linewidth]{figures/confusion.png}
+		\caption{Confusion matrix of our final voting classifier model. 433 repositories with a train/test ration of $\frac{2}{3}$/$\frac{1}{3}$}
+		\label{fig:confusion}
+	\end{figure}
+
+	% subsection confusion_matrix (end)
+
 % section metrics (end)
 
+\clearpage
+\section{Model} % (fold)
+\label{sec:model}
+
+We came up with a voting classifier that combines:
+
+\begin{enumerate}
+	\item LogisticRegression (one vs. rest)
+	\item Support Vector Classifier
+	\item RandomForestClassifier
+	\item MLPClassifier (100 fully connected hidden units)
+	\item MLPClassifier (50 x 20 fully connected hidden units)
+	\item GradientBoostingClassifier
+\end{enumerate}
+
+For more details and the parameters we used, please refer to the source code.
+
+When the accuracy of the individual models were about 65\%, the accuracy of the voting classifier got to 70\% and its confusion matrix was nicely balanced.
+
+% section model (end)
 
 \section{Validation}
 \label{sec:val}
@@ -372,5 +410,15 @@ The entry point of the program is main.py. Running \textit{python3 main.py} star
 
 Saving the trained model with pickle or joblib resulted a strange loss in accuracy when loading it again. That is why we fall to the solution of training the model at the start of the prediction phase.
 
+\subsection{3 repos we can classify well} % (fold)
+\label{sub:3_repos_we_can_classify_well}
+
+\begin{enumerate}
+	\item \emph{DATA} repositories with lots of pictures, because of a high entropy, e.g. \url{https://github.com/ColinHite/DGM-2210-Hite-C.-2015/tree/master/images}
+	\item repositories with relatively high amount of same file types, such as md files, e.g. \url{https://github.com/e-books/backbone.en.douceur}
+	\item \url{https://github.com/ppau/documents}, because we have a metric that checks the title for doc specific terms (this also let us distinguish \emph{DOCS}, \emph{HW} and \emph{EDU} repos)
+\end{enumerate}
+
+% subsection 3_repos_we_can_classify_well (end)
 
 \end{document}
