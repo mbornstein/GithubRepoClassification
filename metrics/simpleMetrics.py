@@ -51,6 +51,13 @@ def hw_in_description_or_title(repo: 'repo_overview'):
 
 
 @CachedMetric
+def website_in_description_or_title(repo: 'repo_overview'):
+    terms = ['website']
+    return sum(repo.description.lower().count(term) for term in terms if repo.description) + \
+           sum(repo.name.lower().count(term) for term in terms)
+
+
+@CachedMetric
 def is_link_in_description(repo: 'repo_overview'):
     regex = r'(ftp|https?)://[^\.]+\.[a-z]{2,4}'
     if repo.description and re.search(regex, repo.description.lower()):

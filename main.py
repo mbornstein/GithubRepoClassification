@@ -1,27 +1,19 @@
-import numpy as np
-import pandas as pd
-import itertools
-import copy
 import sys
 
-# learning algorithms
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import MinMaxScaler, StandardScaler, minmax_scale
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import VotingClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score
 from sklearn.neural_network import MLPClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, minmax_scale
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.ensemble import VotingClassifier
-from customClassifier.kmeans import CustomKMeans
+
 from customClassifier.TwoStepClassifier import TwoStepClassifier
-from sklearn.model_selection import cross_val_score
-
-from sklearn.pipeline import Pipeline
-from sklearn.externals import joblib
-import pickle
-
 from importer.datasetImporter import DatasetImporter
 
 # We get a deadlock with the VotingClassifier when running multiple threads under mac os
@@ -124,7 +116,8 @@ def test():
         ('algo', algo)
     ]) for algo in algorithms]
 
-    importer = DatasetImporter('data/testset.csv')
+    importer = DatasetImporter('data/testset_orig.csv')
+    #importer = DatasetImporter('data/testset.csv')
     #bla = DatasetImporter('data/valset.csv')
 
     #print('\nStep 1 learning')
