@@ -6,12 +6,18 @@ from metrics.githubMetrics import GithubMetrics, metricCollection
 
 class DatasetImporter:
 
-    def __init__(self, filename):
-        content = open(filename, 'r').readlines()
-        self.repos, self.target = zip(*[line.strip().split(',') for line in content])
+    def __init__(self, filename, complete_set=False):
+        if complete_set:
+            df = pd.read_csv(filename)
+            self.repos = df['repo']
+            self.target = df['y']
+            self.data = df.iloc[:,3:]
+        else:
+            content = open(filename, 'r').readlines()
+            self.repos, self.target = zip(*[line.strip().split(',') for line in content])
 
-        self.target = np.array(self.target)
-        self.data = self.get_data(self.repos)
+            self.target = np.array(self.target)
+            self.data = self.get_data(self.repos)
 
     @staticmethod
     def get_data(repo_links):

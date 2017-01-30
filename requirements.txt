@@ -1,6 +1,6 @@
 pygithub
 numpy
 pandas
+scipy
 scikit-learn
 entropy
-scikit-learn

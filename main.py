@@ -161,10 +161,12 @@ def trainAndPredict(repos):
     ])
 
     #train the classifier
-    importer = DatasetImporter('data/testset.csv')
+    #importer = DatasetImporter('data/testset.csv')
+    importer = DatasetImporter('enriched_data.csv', complete_set=True)
     classifier.fit(logarithmitize(importer.data), importer.target)
 
     # predict gives repositories
+    repos = [repo.strip() for repo in repos if repo.strip() != '']
     prediction = classifier.predict(logarithmitize(DatasetImporter.get_data(repos)))
     for repo, category in zip(repos, prediction):
         print(repo + ', ' + category)
