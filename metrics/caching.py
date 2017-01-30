@@ -39,7 +39,7 @@ def cache_lookup(metric_name, github_metrics):
         with open(get_file_path(github_metrics), 'r') as data_file:
             data = json.load(data_file)
             return data[metric_name]
-    except (KeyError, FileNotFoundError):
+    except (KeyError, FileNotFoundError, json.decoder.JSONDecodeError):
         return None
 
 
