@@ -2,5 +2,5 @@ pygithub
 numpy
 pandas
 scipy
-scikit-learn
+scikit-learn>=0.18
 entropy
