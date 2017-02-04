@@ -2,7 +2,10 @@
 
 This repo contains our github repository classification project for the [informatiCup2017](https://github.com/InformatiCup/InformatiCup2017) challenge. You can find the PDF report [here](docs/report.pdf).
 
-Also have alook at the notebooks! :D
+Also have alook at the notebooks:
+
+* [Comparison of different Classification models](Classification Models.ipynb) 
+* [Data Visualization](Data Visualization.ipynb)
 
 ## Requirements
 * Python3
