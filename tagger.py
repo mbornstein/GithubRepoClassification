@@ -5,23 +5,19 @@ from subprocess import call
 
 import github
 
-from config import API_TOKEN
+explanation = """DEV​: a repository primarily used for development of a tool, component, application, app, or
+API
+HW​ repo: a repository primarily used for homework, assignments and other course-related
+work and code
+EDU​: a repository primarily used to host tutorials, lectures, educational information and
+code related to teaching
+DOCS: a repository primarily used for tracking and storage of non-educational documents
+WEB: a repository primarily used to host static personal websites or blogs
+OTHER​: use this category only if there is no strong correlation to any other repository
+category, for example, empty repositories
+"""
 
-explanation = """DEV: Repositories für die Entwicklung eines Tools, einer Softwareanwendung, einer App, einer Bibliothek, einer API, oder ähnliche Softwareentwicklungsprojekte
-
-HW: Repositories mit Lösungen und Quelltexten für Hausaufgaben und Übungsblätter
-
-EDU: Repositories mit didaktischen Inhalten und Quelltexten für Vorlesungen und Tutorien
-
-DOCS: Repositories für die Verwaltung und Speicherung von nicht-didaktischen (d.h. nicht EDU) Inhalten und Quelltexten
-
-WEB: Repositories für das Hosting persönlicher Web-Seiten oder Blogs
-
-DATA: Repositories für die Speicherung von Datensätzen
-
-OTHER: Repositories, die sich nicht in die anderen Kategorien einordnen lassen"""
-
-githubClient = github.Github(API_TOKEN)
+githubClient = github.Github()
 FILENAME = 'data/testset.csv'
 MAX_REPO_ID = 76000000
 SEPARATOR = ','
