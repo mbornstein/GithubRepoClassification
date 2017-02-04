@@ -16,7 +16,7 @@ Also have alook at the notebooks:
 The entry point of the program is ```main.py```. Running ```python3 main.py``` starts the test mode. This mode trains and validates different models. When given a file as parameter (e.g. ```python3 main.py data/valset_unclassified.txt```), the program classifies all repositories in that file and print the results to stdout.
 Saving the trained model with pickle or joblib resulted a strange loss in accuracy when loading it again. That is why we fall to the solution of training the model at the start of the prediction phase.
 
-In order to speed up the training, we provide a csv ([data/enriched_data.csv](data/enriched_data.csv)) with all feature data for the training dataset precalculated. Let the dataimporter import this csv file to avoid downloaded 20GB of repositories.
+In order to speed up the training, we provide a csv ([data/enriched_data.csv](data/enriched_data.csv)) with all feature data for the training dataset precalculated. Let the dataimporter import this csv file to avoid downloading 20GB of repositories.
 
 ## Categories
 
