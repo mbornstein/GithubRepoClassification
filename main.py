@@ -116,9 +116,7 @@ def test():
         ('algo', algo)
     ]) for algo in algorithms]
 
-    importer = DatasetImporter('data/testset_orig.csv')
-    #importer = DatasetImporter('data/testset.csv')
-    #bla = DatasetImporter('data/valset.csv')
+    importer = DatasetImporter('data/testset.csv')
 
     #print('\nStep 1 learning')
     # learn_step_one(algorithms, importer)
@@ -161,8 +159,7 @@ def trainAndPredict(repos):
     ])
 
     #train the classifier
-    #importer = DatasetImporter('data/testset.csv')
-    importer = DatasetImporter('enriched_data.csv', complete_set=True)
+    importer = DatasetImporter('data/enriched_data.csv', complete_set=True)
     classifier.fit(logarithmitize(importer.data), importer.target)
 
     # predict gives repositories

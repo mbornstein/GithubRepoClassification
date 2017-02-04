@@ -13,7 +13,7 @@ class DatasetImporter:
             self.target = df['y']
             self.data = df.iloc[:,3:]
         else:
-            content = open(filename, 'r').readlines()
+            content = open(filename, 'r').read().strip().split('\n')
             self.repos, self.target = zip(*[line.strip().split(',') for line in content])
 
             self.target = np.array(self.target)
