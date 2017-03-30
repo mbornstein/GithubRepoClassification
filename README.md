@@ -4,8 +4,8 @@ This repo contains our github repository classification project for the [informa
 
 Also have alook at the notebooks:
 
-* [Comparison of different Classification models](Classification\ Models.ipynb) 
-* [Data Visualization](Data\ Visualization.ipynb)
+* [Comparison of different Classification models](Classification_Models.ipynb) 
+* [Data Visualization](Data_Visualization.ipynb)
 
 ## Requirements
 * Python3
